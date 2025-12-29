@@ -1,5 +1,5 @@
 # backend/Dockerfile
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Instalamos dependencias del sistema necesarias para 'sharp' y otras libs
 RUN apk update && apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev nasm bash vips-dev
