@@ -18,12 +18,15 @@ export async function getPedidos(): Promise<Pedido[]> {
   }
 }
 
-// Obtener Repartidores
-export async function getRepartidores(): Promise<Repartidor[]> {
+// ACTUALIZACIÓN: Aceptamos un parámetro opcional para filtrar por estado
+export async function getRepartidores(estado: string = 'Disponible'): Promise<Repartidor[]> {
   try {
-    const res = await fetch(`${API_URL}/api/repartidors`, {
+    // Usamos los filtros de Strapi v4/v5
+    // Sintaxis: filters[campo][$eq]=valor
+    const res = await fetch(`${API_URL}/api/repartidors?filters[estado][$eq]=${estado}`, {
       cache: 'no-store',
     });
+    
     if (!res.ok) throw new Error('Fallo al obtener repartidores');
     const json = await res.json();
     return json.data || [];
@@ -33,10 +36,23 @@ export async function getRepartidores(): Promise<Repartidor[]> {
   }
 }
 
-// MODIFICADA: Ahora marca al rider como 'Ocupado' al asignar
+// lib/api.ts
+
 export async function asignarRider(pedidoDocumentId: string, riderDocumentId: string): Promise<boolean> {
   try {
-    // 1. Actualizamos el PEDIDO
+    // Paso 1: Intentar marcar al Rider como Ocupado PRIMERO.
+    // Es mejor bloquear al recurso (Rider) antes de asignar el trabajo.
+    const resRider = await fetch(`${API_URL}/api/repartidors/${riderDocumentId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        data: { estado: 'Ocupado' }
+      }),
+    });
+
+    if (!resRider.ok) throw new Error('No se pudo bloquear al rider');
+
+    // Paso 2: Asignar el pedido
     const resPedido = await fetch(`${API_URL}/api/pedidos/${pedidoDocumentId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -48,23 +64,23 @@ export async function asignarRider(pedidoDocumentId: string, riderDocumentId: st
       }),
     });
 
-    // 2. Actualizamos al RIDER a 'Ocupado'
-    const resRider = await fetch(`${API_URL}/api/repartidors/${riderDocumentId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        data: { estado: 'Ocupado' }
-      }),
-    });
+    // ROLLBACK: Si falla la asignación del pedido, liberamos al rider inmediatamente
+    if (!resPedido.ok) {
+        console.warn("Fallo asignación pedido, revirtiendo estado del rider...");
+        await fetch(`${API_URL}/api/repartidors/${riderDocumentId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: { estado: 'Disponible' } }),
+        });
+        return false;
+    }
     
-    return resPedido.ok && resRider.ok;
+    return true;
   } catch (error) {
-    console.error("Error al asignar:", error);
+    console.error("Error crítico en transacción de asignación:", error);
     return false;
   }
 }
-
-// ... (tus funciones anteriores) ...
 
 // En lib/api.ts
 

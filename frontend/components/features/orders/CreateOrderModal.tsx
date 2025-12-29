@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createPedido } from '../../../lib/api';
+import { createPedido } from '@/lib/api'; // Ajusta la ruta a tu alias
 
 export default function CreateOrderModal() {
   const router = useRouter();
@@ -20,32 +20,54 @@ export default function CreateOrderModal() {
     e.preventDefault();
     setLoading(true);
     
-    // Concatenamos el +51 automáticamente antes de enviar
+    // 1. LIMPIEZA Y VALIDACIÓN ESTRICTA
+    // Aseguramos que solo haya números
+    const cleanPhone = formData.telefono.replace(/\D/g, '');
+
+    if (cleanPhone.length !== 9) {
+        alert('⚠️ El número de celular debe tener exactamente 9 dígitos para enviar el Tracking por WhatsApp.');
+        setLoading(false);
+        return; // Detenemos el envío
+    }
+    
+    // 2. PREPARACIÓN DE DATOS
     const datosParaEnviar = {
-        ...formData,
-        telefono: `+51${formData.telefono}` // Asegura el formato internacional
+        cliente: formData.cliente,
+        direccion: formData.direccion,
+        items: formData.items,
+        // Agregamos el código de país Perú (+51)
+        telefono: `+51${cleanPhone}` 
     };
 
+    // 3. ENVÍO AL SERVIDOR
     const success = await createPedido(datosParaEnviar);
     
     if (success) {
       setIsOpen(false);
       setFormData({ cliente: '', telefono: '', direccion: '', items: '' });
-      router.refresh();
-      // Usamos un pequeño timeout para que la alerta no corte la animación de cierre
-      setTimeout(() => alert('✅ Pedido creado con éxito'), 100);
+      router.refresh(); // Recarga los datos en segundo plano
+      
+      // Feedback visual sutil (Opcional: podrías usar una librería de Toast aquí)
+      // setTimeout(() => alert('✅ Pedido enviado a cocina'), 300);
     } else {
-      alert('❌ Error al crear. Revisa la consola.');
+      alert('❌ Hubo un error al conectar con el servidor.');
     }
     setLoading(false);
   };
 
+  // Función para manejar el input de teléfono
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = e.target.value.replace(/\D/g, ''); // Solo permite números
+      if (val.length <= 9) { // No permite escribir más de 9
+          setFormData({ ...formData, telefono: val });
+      }
+  };
+
   return (
     <>
-      {/* Botón Principal Moderno */}
       <button 
         onClick={() => setIsOpen(true)}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 font-semibold flex items-center gap-2 transform hover:-translate-y-0.5"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 font-semibold flex items-center gap-2 active:scale-95"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -54,8 +76,8 @@ export default function CreateOrderModal() {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 transform transition-all scale-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100">
             
             {/* Cabecera */}
             <div className="bg-white px-8 py-5 border-b border-gray-100 flex justify-between items-center">
@@ -67,9 +89,7 @@ export default function CreateOrderModal() {
                 onClick={() => setIsOpen(false)} 
                 className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-colors"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                ✖
               </button>
             </div>
 
@@ -81,37 +101,32 @@ export default function CreateOrderModal() {
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre del Cliente</label>
                 <input 
                   required 
+                  autoFocus
                   type="text" 
                   placeholder="Ej: Juan Pérez"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                   value={formData.cliente} 
                   onChange={(e) => setFormData({...formData, cliente: e.target.value})} 
                 />
               </div>
 
-              {/* Teléfono con Prefijo Fijo */}
+              {/* Teléfono */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">WhatsApp</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">WhatsApp (Solo 9 dígitos)</label>
                 <div className="relative">
-                    {/* El prefijo visual */}
                     <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
                         <span className="text-gray-500 font-medium border-r border-gray-300 pr-3 mr-1 flex items-center gap-1">
                             🇵🇪 +51
                         </span>
                     </div>
-                    {/* El input real */}
                     <input 
                       required 
                       type="tel" 
-                      maxLength={9} // Limita a 9 dígitos Perú
+                      inputMode="numeric"
                       placeholder="999 888 777"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-[5.5rem] pr-4 py-3 text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-mono"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-[5.5rem] pr-4 py-3 font-mono focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                       value={formData.telefono} 
-                      onChange={(e) => {
-                          // Solo permite números
-                          const val = e.target.value.replace(/\D/g, '');
-                          setFormData({...formData, telefono: val});
-                      }} 
+                      onChange={handlePhoneChange} 
                     />
                 </div>
               </div>
@@ -123,7 +138,7 @@ export default function CreateOrderModal() {
                   required 
                   type="text" 
                   placeholder="Calle / Av. / Referencia"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                   value={formData.direccion} 
                   onChange={(e) => setFormData({...formData, direccion: e.target.value})} 
                 />
@@ -136,36 +151,28 @@ export default function CreateOrderModal() {
                   required 
                   rows={3} 
                   placeholder="Ej: 1 Pollo a la brasa, 2 Inka Kolas..."
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
                   value={formData.items} 
                   onChange={(e) => setFormData({...formData, items: e.target.value})} 
                 />
-                <p className="text-xs text-gray-500 mt-1 text-right">Separa los items por coma</p>
+                <p className="text-xs text-gray-400 mt-1 text-right">Separa los productos por coma</p>
               </div>
 
               {/* Botones */}
-              <div className="pt-4 flex gap-3">
+              <div className="pt-2 flex gap-3">
                 <button 
                   type="button" 
                   onClick={() => setIsOpen(false)} 
-                  className="flex-1 bg-white border border-gray-200 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all"
+                  className="flex-1 bg-white border border-gray-200 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-50 transition-all"
                 >
                   Cancelar
                 </button>
                 <button 
                   type="submit" 
                   disabled={loading} 
-                  className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all disabled:bg-gray-400 disabled:shadow-none"
+                  className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 shadow-md disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
                 >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Guardando...
-                    </span>
-                  ) : 'Crear Pedido'}
+                  {loading ? 'Guardando...' : 'Crear Pedido'}
                 </button>
               </div>
             </form>

@@ -1,25 +1,14 @@
+import { redirect } from 'next/navigation';
 import { Metadata } from 'next';
-import { getPedidos, getRepartidores } from '../lib/api';
-import DashboardClient from '../components/features/dashboard/DashboardClient';
 
 export const metadata: Metadata = {
   title: 'FluentOps | Gestión Empresarial',
-  description: 'Panel de control de operaciones y logística.',
+  description: 'Redirigiendo al panel de control...',
 };
 
-export default async function DashboardPage() {
-  // Obtenemos los datos frescos del servidor
-  // Nota: Strapi cachea por defecto, si quieres datos 'en vivo' siempre, Next hace el trabajo con revalidate
-  const [pedidos, repartidores] = await Promise.all([
-    getPedidos(),
-    getRepartidores()
-  ]);
-
-  // Renderizamos el Componente Cliente (El diseño con sidebar)
-  return (
-    <DashboardClient 
-        pedidos={pedidos} 
-        repartidores={repartidores} 
-    />
-  );
+export default function Home() {
+  // 🚀 LÓGICA NUEVA:
+  // Ya no cargamos datos aquí. Los datos se cargan en 'app/dashboard/pedidos/page.tsx'.
+  // Simplemente redirigimos al usuario a la nueva ruta principal.
+  redirect('/dashboard/pedidos');
 }
