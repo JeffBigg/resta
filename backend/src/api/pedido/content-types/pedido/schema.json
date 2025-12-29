@@ -1,0 +1,43 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pedidos",
+  "info": {
+    "singularName": "pedido",
+    "pluralName": "pedidos",
+    "displayName": "Pedido"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "cliente_nombre": {
+      "type": "string"
+    },
+    "direccion_entrega": {
+      "type": "string"
+    },
+    "cliente_telefono": {
+      "type": "string"
+    },
+    "detalle_pedido": {
+      "type": "json"
+    },
+    "status_entrega": {
+      "type": "enumeration",
+      "enum": [
+        "Cocina",
+        "Listo_para_recoger",
+        "En_ruta",
+        "Entregado",
+        "Cancelado"
+      ]
+    },
+    "repartidor": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::repartidor.repartidor",
+      "inversedBy": "pedidos"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+# --- STRAPI BACKEND ---
+
+# Dependencias
+node_modules/
+.yarn/
+package-lock.json # Opcional: Si usas yarn, ignora este. Si usas npm, NO lo ignores.
+
+# Build y Temporales de Strapi
+build/
+dist/
+.cache/
+.tmp/
+public/uploads/ # Importante: No subir imágenes de prueba a GitHub
+!public/uploads/.gitkeep # Mantener la carpeta aunque esté vacía
+
+# Configuración y Secretos
+.env
+.env.*
+
+# Base de datos local (SQLite)
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Strapi Cloud
+.strapi-updater.json
+.strapi-cloud.json
