@@ -1,0 +1,28 @@
+# --- RAÍZ DEL PROYECTO ---
+
+# 1. SECRETOS Y VARIABLES DE ENTORNO (¡CRÍTICO!)
+.env
+.env.production
+.env.local
+.env.*
+
+# 2. CARPETAS DE IDE/EDITOR
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 3. SISTEMA OPERATIVO
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 4. LOGS DE DOCKER Y DEBUG
+npm-debug.log*
+yarn-debug.log*
+docker-compose.override.yml
+
+# 5. VOLÚMENES DE DATOS LOCALES (Si alguna vez corres la DB en local)
+postgres_data/
+pgdata/
+mysql_data/

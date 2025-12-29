@@ -1,0 +1,59 @@
+version: '3'
+services:
+  # Base de Datos PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: fluentops_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # Backend Strapi
+  backend:
+    build: ./backend
+    container_name: fluentops_backend
+    restart: always
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      APP_KEYS: ${APP_KEYS}
+      NODE_ENV: production
+    ports:
+      - "1337:1337"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  # Frontend Next.js
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # ¡OJO! Aquí usaremos la IP del servidor que definiremos en el archivo .env
+        NEXT_PUBLIC_API_URL: http://${VPS_IP}:1337
+    container_name: fluentops_frontend
+    restart: always
+    ports:
+      - "80:3000" # Redirige el puerto 80 (Web normal) al 3000 interno
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge
