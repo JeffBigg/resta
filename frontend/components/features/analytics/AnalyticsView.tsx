@@ -5,8 +5,9 @@ import { Pedido } from '@/types';
 import StatsGrid from './StatsGrid';
 import SalesChart from './charts/SalesChart';
 import StatusDonut from './charts/StatusDonut';
-import TopProductsChart from './charts/TopProductsChart'; // <--- Nuevo
-import PeakHoursChart from './charts/PeakHoursChart';     // <--- Nuevo
+import PeakHoursChart from './charts/PeakHoursChart';
+import RiderPerformanceChart from './charts/RiderPerformanceChart';
+import TopProductsChart from './charts/TopProductsChart';  // <--- CAMBIO AQUÍ
 
 interface Props {
   pedidos: Pedido[];
@@ -37,7 +38,7 @@ export default function AnalyticsView({ pedidos }: Props) {
     });
   }, [pedidos, range]);
   
-  // 2. MÉTRICAS
+  // 2. MÉTRICAS GENERALES
   const metrics = useMemo(() => {
     const totalPedidos = pedidosFiltrados.length;
     const entregados = pedidosFiltrados.filter(p => p.status_entrega === 'Entregado').length;
@@ -74,12 +75,11 @@ export default function AnalyticsView({ pedidos }: Props) {
       {/* FILA 1: VENTAS Y DONUT */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* GRÁFICO 1: VENTAS */}
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
            <div className="flex justify-between items-center mb-6">
               <h3 className="font-bold text-gray-800">Tendencia de Ingresos</h3>
-              <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md border border-blue-100 font-bold">
-                 {range.toUpperCase()}
+              <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md border border-blue-100 font-bold uppercase">
+                 {range}
               </span>
            </div>
            <div className="h-72 w-full">
@@ -87,11 +87,8 @@ export default function AnalyticsView({ pedidos }: Props) {
            </div>
         </div>
 
-        {/* GRÁFICO 2: DONUT (ARREGLADO RESPONSIVE) */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
            <h3 className="font-bold text-gray-800 mb-2">Estado de Órdenes</h3>
-           
-           {/* SOLUCIÓN: min-h-[300px] asegura espacio en celular */}
            <div className="flex-1 w-full min-h-75 lg:min-h-0">
               {pedidosFiltrados.length > 0 ? (
                  <StatusDonut pedidos={pedidosFiltrados} />
@@ -100,10 +97,9 @@ export default function AnalyticsView({ pedidos }: Props) {
               )}
            </div>
         </div>
-
       </div>
 
-      {/* FILA 2: NUEVOS GRÁFICOS (TOP PRODUCTOS Y HORAS PICO) */}
+      {/* FILA 2: HORAS PICO Y TOP RIDERS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
          
          {/* GRÁFICO 3: TOP PRODUCTOS */}
@@ -124,8 +120,17 @@ export default function AnalyticsView({ pedidos }: Props) {
             </div>
          </div>
 
-      </div>
+         {/* GRÁFICO 4: TOP RIDERS (RRHH / Incentivos) - NUEVO 🔥 */}
+         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="font-bold text-gray-800 mb-1">🏍️ Top Repartidores</h3>
+            <p className="text-xs text-gray-400 mb-4">Mayor cantidad de entregas completadas</p>
+            <div className="h-64 w-full">
+               {/* Usamos el nuevo componente */}
+               <RiderPerformanceChart pedidos={pedidosFiltrados} />
+            </div>
+         </div>
 
+      </div>
     </div>
   );
 }

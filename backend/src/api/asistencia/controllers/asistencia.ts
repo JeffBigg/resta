@@ -1,0 +1,7 @@
+/**
+ * asistencia controller
+ */
+
+import { factories } from '@strapi/strapi';
+
+export default factories.createCoreController('api::asistencia.asistencia');

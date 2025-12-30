@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "empleados",
+  "info": {
+    "singularName": "empleado",
+    "pluralName": "empleados",
+    "displayName": "Empleado"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nombre": {
+      "type": "string"
+    },
+    "apellido": {
+      "type": "string"
+    },
+    "pin_code": {
+      "type": "string"
+    },
+    "rol_operativo": {
+      "type": "enumeration",
+      "enum": [
+        "Rider",
+        "Cocina",
+        "Caja",
+        "Limpieza"
+      ]
+    },
+    "asistencias": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::asistencia.asistencia",
+      "mappedBy": "empleado"
+    }
+  }
+}

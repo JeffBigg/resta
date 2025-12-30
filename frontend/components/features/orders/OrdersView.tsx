@@ -81,7 +81,7 @@ export default function OrdersView({ pedidos, repartidores }: Props) {
                 <button
                   key={key}
                   onClick={() => setActiveFilter(key)}
-                  className={`relative flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-100 ${
+                  className={`relative shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-100 ${
                     activeFilter === key
                       ? `${color} shadow-md transform scale-[1.02]`
                       : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
@@ -101,14 +101,14 @@ export default function OrdersView({ pedidos, repartidores }: Props) {
           </div>
 
           {/* Botón Desktop */}
-          <div className="hidden md:block flex-shrink-0">
+          <div className="hidden md:block shrink-0">
             <CreateOrderModal />
           </div>
         </div>
       </div>
 
       {/* CONTENIDO PRINCIPAL */}
-      <div className="flex-grow w-full min-w-0"> {/* w-full y min-w-0 protegen el grid */}
+      <div className="grow w-full min-w-0"> {/* w-full y min-w-0 protegen el grid */}
         {pedidosProcesados.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center py-20 text-gray-400 opacity-60">
               <p className="text-5xl mb-4 grayscale">🍃</p>

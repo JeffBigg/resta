@@ -467,6 +467,76 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiAsistenciaAsistencia extends Struct.CollectionTypeSchema {
+  collectionName: 'asistencias';
+  info: {
+    displayName: 'Asistencia';
+    pluralName: 'asistencias';
+    singularName: 'asistencia';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    empleado: Schema.Attribute.Relation<'manyToOne', 'api::empleado.empleado'>;
+    fecha_hora: Schema.Attribute.DateTime;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::asistencia.asistencia'
+    > &
+      Schema.Attribute.Private;
+    nota: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    tipo: Schema.Attribute.Enumeration<
+      ['entrada', 'inicio_refrigerio', 'fin_refrigerio', 'salida']
+    >;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiEmpleadoEmpleado extends Struct.CollectionTypeSchema {
+  collectionName: 'empleados';
+  info: {
+    displayName: 'Empleado';
+    pluralName: 'empleados';
+    singularName: 'empleado';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    apellido: Schema.Attribute.String;
+    asistencias: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::asistencia.asistencia'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::empleado.empleado'
+    > &
+      Schema.Attribute.Private;
+    nombre: Schema.Attribute.String;
+    pin_code: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    rol_operativo: Schema.Attribute.Enumeration<
+      ['Rider', 'Cocina', 'Caja', 'Limpieza']
+    >;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiPedidoPedido extends Struct.CollectionTypeSchema {
   collectionName: 'pedidos';
   info: {
@@ -1025,7 +1095,6 @@ export interface PluginUsersPermissionsUser
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -1081,6 +1150,8 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::asistencia.asistencia': ApiAsistenciaAsistencia;
+      'api::empleado.empleado': ApiEmpleadoEmpleado;
       'api::pedido.pedido': ApiPedidoPedido;
       'api::repartidor.repartidor': ApiRepartidorRepartidor;
       'api::servicio.servicio': ApiServicioServicio;

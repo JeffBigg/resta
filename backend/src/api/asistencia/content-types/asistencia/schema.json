@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "asistencias",
+  "info": {
+    "singularName": "asistencia",
+    "pluralName": "asistencias",
+    "displayName": "Asistencia"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "tipo": {
+      "type": "enumeration",
+      "enum": [
+        "entrada",
+        "inicio_refrigerio",
+        "fin_refrigerio",
+        "salida"
+      ]
+    },
+    "fecha_hora": {
+      "type": "datetime"
+    },
+    "nota": {
+      "type": "string"
+    },
+    "empleado": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::empleado.empleado",
+      "inversedBy": "asistencias"
+    }
+  }
+}

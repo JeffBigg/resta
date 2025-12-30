@@ -109,7 +109,7 @@ export default function Header() {
             
             <div className="h-9 w-9 rounded-full overflow-hidden border border-gray-200 bg-gray-100 shadow-sm relative">
                <img 
-                 src={userImage} 
+                 src={userImage}  
                  alt="User" 
                  className="h-full w-full object-cover"
                />
