@@ -13,11 +13,6 @@ export default async function PedidosPage() {
 
   return (
     <>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Torre de Control</h2>
-        <p className="text-gray-500 text-sm">Gestiona los pedidos entrantes y la flota en tiempo real.</p>
-      </div>
-
       {/* Le pasamos la data inicial al componente cliente */}
       <OrdersView pedidos={pedidos} repartidores={repartidores} />
     </>
