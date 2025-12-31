@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import { Pedido, Repartidor } from '@/types';
+import { getPedidos, getRepartidores } from '@/lib/api'; // 👈 IMPORTANTE: Importamos la API
 import OrderCard from './OrderCard';
 import CreateOrderModal from './CreateOrderModal';
 
@@ -13,17 +13,36 @@ interface Props {
 
 type FilterType = 'todos' | 'pendientes' | 'entregados' | 'cancelados';
 
-export default function OrdersView({ pedidos, repartidores }: Props) {
-  const router = useRouter();
+export default function OrdersView({ pedidos: initialPedidos, repartidores: initialRepartidores }: Props) {
+  // 1. ESTADO LOCAL (Para que la pantalla cambie sin recargar)
+  const [listaPedidos, setListaPedidos] = useState<Pedido[]>(initialPedidos);
+  const [listaRepartidores, setListaRepartidores] = useState<Repartidor[]>(initialRepartidores);
   const [activeFilter, setActiveFilter] = useState<FilterType>('todos');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Auto-refresh
+  // 2. FUNCIÓN PARA CARGAR DATOS (Se usa en automático y manual)
+  const refreshData = async () => {
+    try {
+      // setIsRefreshing(true); // Opcional: Descomentar si quieres ver el spinner cada 15s
+      const nuevosPedidos = await getPedidos();
+      const nuevosRepartidores = await getRepartidores();
+      setListaPedidos(nuevosPedidos);
+      setListaRepartidores(nuevosRepartidores);
+    } catch (error) {
+      console.error("Error actualizando dashboard:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // 3. AUTO-REFRESH (POLLING) - Conexión con n8n
   useEffect(() => {
-    const id = setInterval(() => router.refresh(), 15000);
-    return () => clearInterval(id);
-  }, [router]);
+    // Cada 15 segundos buscamos cambios en la base de datos
+    const interval = setInterval(refreshData, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
-  // Lógica de Filtrado y Orden
+  // 4. LÓGICA DE FILTRADO Y ORDEN (Usamos listaPedidos en lugar de props)
   const pedidosProcesados = useMemo(() => {
     const getPriority = (status: string) => {
       if (['Cocina', 'Listo_para_recoger', 'En_ruta'].includes(status)) return 1;
@@ -32,7 +51,7 @@ export default function OrdersView({ pedidos, repartidores }: Props) {
       return 4;
     };
 
-    return pedidos
+    return listaPedidos
       .filter(p => {
         const s = p.status_entrega;
         if (activeFilter === 'todos') return true;
@@ -47,15 +66,15 @@ export default function OrdersView({ pedidos, repartidores }: Props) {
         if (pa !== pb) return pa - pb;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-  }, [pedidos, activeFilter]);
+  }, [listaPedidos, activeFilter]); // 👈 Dependencia cambiada a listaPedidos
 
-  // Contadores
+  // 5. CONTADORES (Usamos listaPedidos)
   const counts = useMemo(() => ({
-    todos: pedidos.length,
-    pendientes: pedidos.filter(p => ['Cocina', 'Listo_para_recoger', 'En_ruta'].includes(p.status_entrega)).length,
-    entregados: pedidos.filter(p => p.status_entrega === 'Entregado').length,
-    cancelados: pedidos.filter(p => p.status_entrega === 'Cancelado').length,
-  }), [pedidos]);
+    todos: listaPedidos.length,
+    pendientes: listaPedidos.filter(p => ['Cocina', 'Listo_para_recoger', 'En_ruta'].includes(p.status_entrega)).length,
+    entregados: listaPedidos.filter(p => p.status_entrega === 'Entregado').length,
+    cancelados: listaPedidos.filter(p => p.status_entrega === 'Cancelado').length,
+  }), [listaPedidos]);
 
   const TABS: { key: FilterType; label: string; color: string }[] = [
     { key: 'todos', label: 'Todos', color: 'bg-gray-800 text-white' },
@@ -68,15 +87,13 @@ export default function OrdersView({ pedidos, repartidores }: Props) {
     <div className="flex flex-col min-h-[85vh] space-y-4 pb-28 md:pb-10 animate-in fade-in duration-300">
 
       {/* HEADER DE FILTROS (STICKY) */}
-      {/* max-w-full asegura que el header no exceda el ancho de la pantalla */}
       <div className="sticky top-0 z-20 bg-slate-50/95 backdrop-blur-md py-2 -mx-4 px-4 shadow-sm md:static md:bg-transparent md:shadow-none md:mx-0 md:p-0 md:mb-6 transition-all max-w-[100vw]">
         
         <div className="flex items-center justify-between gap-4">
 
-          {/* 🔥 LA SOLUCIÓN: min-w-0 */}
-          {/* Al agregar min-w-0, permitimos que este contenedor se encoja dentro del flex padre */}
           <div className="overflow-x-auto no-scrollbar flex-1 min-w-0">
-            <div className="flex gap-2 min-w-max pb-1 pr-4"> {/* Agregué pr-4 para dar aire al final del scroll */}
+            <div className="flex items-center gap-2 min-w-max pb-1 pr-4"> 
+              {/* Tabs de Filtros */}
               {TABS.map(({ key, label, color }) => (
                 <button
                   key={key}
@@ -97,10 +114,20 @@ export default function OrdersView({ pedidos, repartidores }: Props) {
                   )}
                 </button>
               ))}
+
+              {/* Botón de Refrescar Manual (Pequeño y sutil) */}
+              <button 
+                onClick={() => { setIsRefreshing(true); refreshData(); }}
+                disabled={isRefreshing}
+                className="p-2 bg-white border border-gray-200 rounded-xl text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-colors"
+                title="Actualizar datos ahora"
+              >
+                <span className={`block ${isRefreshing ? 'animate-spin' : ''}`}>↻</span>
+              </button>
             </div>
           </div>
 
-          {/* Botón Desktop */}
+          {/* Botón Create Desktop */}
           <div className="hidden md:block shrink-0">
             <CreateOrderModal />
           </div>
@@ -108,7 +135,7 @@ export default function OrdersView({ pedidos, repartidores }: Props) {
       </div>
 
       {/* CONTENIDO PRINCIPAL */}
-      <div className="grow w-full min-w-0"> {/* w-full y min-w-0 protegen el grid */}
+      <div className="grow w-full min-w-0"> 
         {pedidosProcesados.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center py-20 text-gray-400 opacity-60">
               <p className="text-5xl mb-4 grayscale">🍃</p>
@@ -116,13 +143,12 @@ export default function OrdersView({ pedidos, repartidores }: Props) {
               <p className="text-sm">No hay pedidos en &quot;{activeFilter}&quot;</p>
           </div>
         ) : (
-          // GRID: grid-cols-1 asegura que en móvil ocupe todo el ancho disponible
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 content-start w-full">
               {pedidosProcesados.map(p => (
               <OrderCard
                   key={p.documentId}
                   pedido={p}
-                  repartidores={repartidores}
+                  repartidores={listaRepartidores} // Pasamos la lista actualizada
               />
               ))}
           </div>
