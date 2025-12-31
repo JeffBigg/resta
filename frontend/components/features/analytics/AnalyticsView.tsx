@@ -7,7 +7,6 @@ import SalesChart from './charts/SalesChart';
 import StatusDonut from './charts/StatusDonut';
 import PeakHoursChart from './charts/PeakHoursChart';
 import RiderPerformanceChart from './charts/RiderPerformanceChart';
-import TopProductsChart from './charts/TopProductsChart';  // <--- CAMBIO AQUÍ
 
 interface Props {
   pedidos: Pedido[];
@@ -102,14 +101,6 @@ export default function AnalyticsView({ pedidos }: Props) {
       {/* FILA 2: HORAS PICO Y TOP RIDERS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
          
-         {/* GRÁFICO 3: TOP PRODUCTOS */}
-         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="font-bold text-gray-800 mb-1">🏆 Top 5 Productos</h3>
-            <p className="text-xs text-gray-400 mb-4">Lo más vendido en este periodo</p>
-            <div className="h-64 w-full">
-               <TopProductsChart pedidos={pedidosFiltrados} range={range} />
-            </div>
-         </div>
 
          {/* GRÁFICO 4: HORAS PICO */}
          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
