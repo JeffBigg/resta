@@ -1,5 +1,7 @@
 import { getPedidoByDocumentId } from '../../../lib/api'; 
 import Link from 'next/link';
+// IMPORTANTE: Importamos el tipo para que TypeScript no se queje en el map
+import { ItemPedido } from '@/types'; 
 
 // Definimos los pasos lógicos de una entrega
 const STEPS = [
@@ -10,7 +12,6 @@ const STEPS = [
 ];
 
 // 1. EL FIX: Definimos el tipo exacto que espera Next.js
-// En versiones nuevas, params es una Promesa que devuelve un objeto con el id
 interface Props {
   params: Promise<{ id: string }>;
 }
@@ -45,8 +46,8 @@ export default async function TrackingPage({ params }: Props) {
         
         {/* Cabecera con Mapa Simulado */}
         <div className="h-32 bg-blue-600 flex items-center justify-center relative overflow-hidden">
-            {/* Patrón de fondo CSS puro para no depender de imágenes externas que puedan fallar */}
-            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            {/* Patrón de fondo CSS puro */}
+            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#fff_1px,transparent_1px)] bg-size-[16px_16px]"></div>
             <h1 className="text-white text-2xl font-bold z-10 relative">Seguimiento de Pedido</h1>
         </div>
 
@@ -65,7 +66,7 @@ export default async function TrackingPage({ params }: Props) {
 
               return (
                 <div key={step.status} className="relative pl-8">
-                  <span className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-2 transition-all duration-500 ${
+                  <span className={`absolute -left-2.25 top-1 w-4 h-4 rounded-full border-2 transition-all duration-500 ${
                     isActive ? 'bg-blue-600 border-blue-600 scale-110' : 'bg-white border-gray-300'
                   }`}></span>
 
@@ -99,13 +100,25 @@ export default async function TrackingPage({ params }: Props) {
             </div>
           )}
 
-          {/* Detalle del pedido */}
+          {/* Detalle del pedido (CORREGIDO) */}
           <div className="mt-8 border-t pt-6">
             <p className="text-sm font-bold text-gray-900 mb-2">Detalle de la orden:</p>
-            <ul className="text-sm text-gray-600 space-y-1">
-              {pedido.detalle_pedido.items.map((item, i) => (
-                <li key={i}>• {item}</li>
-              ))}
+            <ul className="text-sm text-gray-600 space-y-2">
+              {pedido.detalle_pedido.items.map((item, i) => {
+                // CORRECCIÓN: Verificamos si es texto o objeto antes de imprimir
+                if (typeof item === 'string') {
+                    return <li key={i}>• {item}</li>;
+                }
+                // Si es objeto (n8n/WhatsApp), renderizamos nombre y cantidad
+                return (
+                    <li key={i} className="flex justify-between items-center w-full">
+                        <span>• {(item as ItemPedido).nombre}</span>
+                        <span className="text-xs font-bold bg-gray-100 px-2 py-0.5 rounded text-gray-500">
+                           x{(item as ItemPedido).cantidad}
+                        </span>
+                    </li>
+                );
+              })}
             </ul>
           </div>
 
