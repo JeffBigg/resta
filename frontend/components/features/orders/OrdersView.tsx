@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { Pedido, Repartidor } from '@/types';
-import { getPedidos, getRepartidores } from '@/lib/api'; // 👈 IMPORTANTE: Importamos la API
+import { getPedidos, getRepartidores } from '@/lib/api'; 
 import OrderCard from './OrderCard';
 import CreateOrderModal from './CreateOrderModal';
 
@@ -14,20 +14,25 @@ interface Props {
 type FilterType = 'todos' | 'pendientes' | 'entregados' | 'cancelados';
 
 export default function OrdersView({ pedidos: initialPedidos, repartidores: initialRepartidores }: Props) {
-  // 1. ESTADO LOCAL (Para que la pantalla cambie sin recargar)
-  const [listaPedidos, setListaPedidos] = useState<Pedido[]>(initialPedidos);
-  const [listaRepartidores, setListaRepartidores] = useState<Repartidor[]>(initialRepartidores);
+  // 1. ESTADO LOCAL (Con protección || [] para evitar crash inicial)
+  const [listaPedidos, setListaPedidos] = useState<Pedido[]>(initialPedidos || []);
+  const [listaRepartidores, setListaRepartidores] = useState<Repartidor[]>(initialRepartidores || []);
   const [activeFilter, setActiveFilter] = useState<FilterType>('todos');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // 2. FUNCIÓN PARA CARGAR DATOS (Se usa en automático y manual)
+  // 2. FUNCIÓN PARA CARGAR DATOS (Centralizada)
   const refreshData = async () => {
     try {
-      // setIsRefreshing(true); // Opcional: Descomentar si quieres ver el spinner cada 15s
-      const nuevosPedidos = await getPedidos();
-      const nuevosRepartidores = await getRepartidores();
-      setListaPedidos(nuevosPedidos);
-      setListaRepartidores(nuevosRepartidores);
+      // setIsRefreshing(true); // Descomenta si quieres ver el spinner girar en cada auto-refresh
+      const [nuevosPedidos, nuevosRepartidores] = await Promise.all([
+        getPedidos(),
+        getRepartidores()
+      ]);
+
+      // Protección: Solo actualizamos si recibimos arrays válidos
+      if (Array.isArray(nuevosPedidos)) setListaPedidos(nuevosPedidos);
+      if (Array.isArray(nuevosRepartidores)) setListaRepartidores(nuevosRepartidores);
+
     } catch (error) {
       console.error("Error actualizando dashboard:", error);
     } finally {
@@ -42,8 +47,11 @@ export default function OrdersView({ pedidos: initialPedidos, repartidores: init
     return () => clearInterval(interval);
   }, []);
 
-  // 4. LÓGICA DE FILTRADO Y ORDEN (Usamos listaPedidos en lugar de props)
+  // 4. LÓGICA DE FILTRADO Y ORDEN
   const pedidosProcesados = useMemo(() => {
+    // Seguridad adicional por si el estado se corrompe
+    const safeList = Array.isArray(listaPedidos) ? listaPedidos : [];
+
     const getPriority = (status: string) => {
       if (['Cocina', 'Listo_para_recoger', 'En_ruta'].includes(status)) return 1;
       if (status === 'Entregado') return 2;
@@ -51,7 +59,7 @@ export default function OrdersView({ pedidos: initialPedidos, repartidores: init
       return 4;
     };
 
-    return listaPedidos
+    return safeList
       .filter(p => {
         const s = p.status_entrega;
         if (activeFilter === 'todos') return true;
@@ -66,15 +74,18 @@ export default function OrdersView({ pedidos: initialPedidos, repartidores: init
         if (pa !== pb) return pa - pb;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-  }, [listaPedidos, activeFilter]); // 👈 Dependencia cambiada a listaPedidos
+  }, [listaPedidos, activeFilter]); 
 
-  // 5. CONTADORES (Usamos listaPedidos)
-  const counts = useMemo(() => ({
-    todos: listaPedidos.length,
-    pendientes: listaPedidos.filter(p => ['Cocina', 'Listo_para_recoger', 'En_ruta'].includes(p.status_entrega)).length,
-    entregados: listaPedidos.filter(p => p.status_entrega === 'Entregado').length,
-    cancelados: listaPedidos.filter(p => p.status_entrega === 'Cancelado').length,
-  }), [listaPedidos]);
+  // 5. CONTADORES
+  const counts = useMemo(() => {
+    const safeList = Array.isArray(listaPedidos) ? listaPedidos : [];
+    return {
+        todos: safeList.length,
+        pendientes: safeList.filter(p => ['Cocina', 'Listo_para_recoger', 'En_ruta'].includes(p.status_entrega)).length,
+        entregados: safeList.filter(p => p.status_entrega === 'Entregado').length,
+        cancelados: safeList.filter(p => p.status_entrega === 'Cancelado').length,
+    };
+  }, [listaPedidos]);
 
   const TABS: { key: FilterType; label: string; color: string }[] = [
     { key: 'todos', label: 'Todos', color: 'bg-gray-800 text-white' },
@@ -115,7 +126,7 @@ export default function OrdersView({ pedidos: initialPedidos, repartidores: init
                 </button>
               ))}
 
-              {/* Botón de Refrescar Manual (Pequeño y sutil) */}
+              {/* Botón de Refrescar Manual */}
               <button 
                 onClick={() => { setIsRefreshing(true); refreshData(); }}
                 disabled={isRefreshing}
@@ -129,7 +140,8 @@ export default function OrdersView({ pedidos: initialPedidos, repartidores: init
 
           {/* Botón Create Desktop */}
           <div className="hidden md:block shrink-0">
-            <CreateOrderModal />
+            {/* 🔥 AGREGADO: Pasamos la función para que al crear se actualice solo */}
+            <CreateOrderModal onOrderCreated={refreshData} />
           </div>
         </div>
       </div>
@@ -148,7 +160,9 @@ export default function OrdersView({ pedidos: initialPedidos, repartidores: init
               <OrderCard
                   key={p.documentId}
                   pedido={p}
-                  repartidores={listaRepartidores} // Pasamos la lista actualizada
+                  repartidores={listaRepartidores}
+                  // 🔥 AGREGADO: Pasamos la función para que al asignar rider se actualice solo
+                  onUpdate={refreshData} 
               />
               ))}
           </div>
@@ -158,7 +172,8 @@ export default function OrdersView({ pedidos: initialPedidos, repartidores: init
       {/* FAB MOBILE */}
       <div className="fixed bottom-6 right-6 z-30 md:hidden animate-in zoom-in duration-300">
          <div className="shadow-2xl shadow-blue-900/50 rounded-xl">
-            <CreateOrderModal isMobileFab /> 
+            {/* 🔥 AGREGADO: Lo mismo para móvil */}
+            <CreateOrderModal isMobileFab onOrderCreated={refreshData} /> 
          </div>
       </div>
     </div> 

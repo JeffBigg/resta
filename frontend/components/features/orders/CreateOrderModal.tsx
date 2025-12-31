@@ -8,9 +8,10 @@ import { createPedido } from '@/lib/api';
 // Props opcionales para cambiar el estilo del botón disparador
 interface Props {
   isMobileFab?: boolean;
+  onOrderCreated?: () => void; // 🔥 AGREGADO: Para recibir la función de actualización
 }
 
-export default function CreateOrderModal({ isMobileFab = false }: Props) {
+export default function CreateOrderModal({ isMobileFab = false, onOrderCreated }: Props) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,10 +27,7 @@ export default function CreateOrderModal({ isMobileFab = false }: Props) {
     items: ''
   });
 
-  // ✅ CORRECCIÓN DEL ERROR:
-  // Usamos setTimeout con 0ms para diferir la actualización del estado.
-  // Esto evita la advertencia de "Synchronous setState" y asegura que el componente
-  // se haya renderizado al menos una vez antes de intentar acceder al 'document'.
+  // Solución al error de hidratación
   useEffect(() => {
     const timer = setTimeout(() => {
       setMounted(true);
@@ -44,7 +42,6 @@ export default function CreateOrderModal({ isMobileFab = false }: Props) {
     } else {
       document.body.style.overflow = 'unset';
     }
-    // Limpieza al desmontar
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
@@ -76,7 +73,14 @@ export default function CreateOrderModal({ isMobileFab = false }: Props) {
     if (success) {
       setIsOpen(false);
       setFormData({ cliente: '', telefono: '', direccion: '', items: '' });
-      router.refresh();
+      
+      // 🔥 LÓGICA DE ACTUALIZACIÓN:
+      if (onOrderCreated) {
+        onOrderCreated(); // Actualiza sin recargar (Más rápido)
+      } else {
+        router.refresh(); // Fallback clásico
+      }
+
     } else {
       alert('❌ Error al guardar pedido.');
     }
@@ -186,10 +190,6 @@ export default function CreateOrderModal({ isMobileFab = false }: Props) {
     </div>
   );
 
-  // Renderizado Condicional:
-  // 1. Siempre mostramos el botón (Trigger).
-  // 2. Solo intentamos crear el Portal si isOpen es true Y si el componente ya se montó en el cliente.
-  //    (El 'mounted' evita errores de hidratación porque 'document' no existe en el servidor).
   return (
     <>
       {triggerButton}

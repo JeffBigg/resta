@@ -1,26 +1,31 @@
 // types/index.ts
 
+// Estructura para items que vienen de n8n (WhatsApp)
+export interface ItemPedido {
+  nombre: string;
+  cantidad: number;
+}
+
 export interface Repartidor {
-    id: number;
-    documentId: string;
-    nombre: string;
-    estado: 'Disponible' | 'Ocupado' | 'Desconectado';
-    telefono?: string;
+  id: number;
+  documentId: string;
+  nombre: string;
+  estado: 'Disponible' | 'Ocupado' | 'Desconectado';
+  telefono?: string;
 }
 
 export interface Pedido {
-    id: number;
-    documentId: string;
-    cliente_nombre: string;
-    cliente_telefono: string;
-    direccion_entrega: string;
-    // ACTUALIZACIÓN AQUÍ: Agregamos 'Cancelado'
-    status_entrega: 'Cocina' | 'Listo_para_recoger' | 'En_ruta' | 'Entregado' | 'Cancelado' | string; 
-    detalle_pedido: {
-        items: string[];
-    };
-    repartidor?: Repartidor; 
-    
-    createdAt: string; // Strapi lo llena automático (Hora pedido)
-    updatedAt: string; // Strapi lo llena automático (Hora entrega aprox)
+  id: number;
+  documentId: string;
+  cliente_nombre: string;
+  cliente_telefono: string;
+  direccion_entrega: string;
+  status_entrega: 'Cocina' | 'Listo_para_recoger' | 'En_ruta' | 'Entregado' | 'Cancelado';
+  detalle_pedido: {
+    // 🔥 AQUÍ ESTÁ LA MAGIA: Aceptamos texto simple (Web) U objetos (n8n)
+    items: string[] | ItemPedido[];
+  };
+  repartidor?: Repartidor;
+  createdAt: string;
+  updatedAt: string;
 }
