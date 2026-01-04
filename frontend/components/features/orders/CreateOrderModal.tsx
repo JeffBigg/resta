@@ -8,7 +8,7 @@ import { createPedido } from '@/lib/api';
 // Props opcionales para cambiar el estilo del botón disparador
 interface Props {
   isMobileFab?: boolean;
-  onOrderCreated?: () => void; // 🔥 AGREGADO: Para recibir la función de actualización
+  onOrderCreated?: () => void;
 }
 
 export default function CreateOrderModal({ isMobileFab = false, onOrderCreated }: Props) {
@@ -16,7 +16,7 @@ export default function CreateOrderModal({ isMobileFab = false, onOrderCreated }
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   
-  // Estado para controlar si estamos en el cliente (solución al error de hidratación)
+  // Estado para controlar si estamos en el cliente
   const [mounted, setMounted] = useState(false);
 
   // Form State
@@ -74,11 +74,10 @@ export default function CreateOrderModal({ isMobileFab = false, onOrderCreated }
       setIsOpen(false);
       setFormData({ cliente: '', telefono: '', direccion: '', items: '' });
       
-      // 🔥 LÓGICA DE ACTUALIZACIÓN:
       if (onOrderCreated) {
-        onOrderCreated(); // Actualiza sin recargar (Más rápido)
+        onOrderCreated();
       } else {
-        router.refresh(); // Fallback clásico
+        router.refresh();
       }
 
     } else {
@@ -96,7 +95,7 @@ export default function CreateOrderModal({ isMobileFab = false, onOrderCreated }
   const triggerButton = isMobileFab ? (
     <button
       onClick={() => setIsOpen(true)}
-      className="flex items-center justify-center w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 active:scale-90 transition-all"
+      className="flex items-center justify-center w-14 h-14 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white rounded-full shadow-lg shadow-blue-600/30 dark:shadow-blue-900/40 active:scale-90 transition-all"
       aria-label="Crear nuevo pedido"
     >
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8">
@@ -106,7 +105,7 @@ export default function CreateOrderModal({ isMobileFab = false, onOrderCreated }
   ) : (
     <button
       onClick={() => setIsOpen(true)}
-      className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 font-semibold flex items-center gap-2 active:scale-95"
+      className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/30 dark:shadow-blue-900/40 transition-all duration-200 font-semibold flex items-center gap-2 active:scale-95"
     >
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -120,20 +119,23 @@ export default function CreateOrderModal({ isMobileFab = false, onOrderCreated }
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       {/* Backdrop oscuro */}
       <div 
-        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-200"
+        className="absolute inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
         onClick={() => setIsOpen(false)}
       />
       
       {/* Ventana Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200 z-10">
+      <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl dark:shadow-black/50 w-full max-w-lg overflow-hidden border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200 z-10 transition-colors">
         
         {/* Cabecera */}
-        <div className="bg-white px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+        <div className="bg-white dark:bg-slate-900 px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center transition-colors">
           <div>
-            <h3 className="font-bold text-xl text-gray-900">Nueva Orden</h3>
-            <p className="text-xs text-gray-500">Ingresa los datos para cocina</p>
+            <h3 className="font-bold text-xl text-slate-900 dark:text-white">Nueva Orden</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Ingresa los datos para cocina</p>
           </div>
-          <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:bg-gray-100 p-2 rounded-full transition-colors">
+          <button 
+            onClick={() => setIsOpen(false)} 
+            className="text-slate-400 hover:bg-slate-100 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-200 p-2 rounded-full transition-all"
+          >
             ✖
           </button>
         </div>
@@ -141,47 +143,57 @@ export default function CreateOrderModal({ isMobileFab = false, onOrderCreated }
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Cliente</label>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Cliente</label>
             <input 
               required autoFocus type="text" placeholder="Nombre completo"
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500/50 focus:border-transparent outline-none transition-all"
               value={formData.cliente} onChange={(e) => setFormData({...formData, cliente: e.target.value})} 
             />
           </div>
 
           <div>
-             <label className="block text-xs font-bold text-gray-700 uppercase mb-1">WhatsApp</label>
-             <div className="relative">
-                <span className="absolute left-3 top-2.5 text-gray-500 font-medium">🇵🇪 +51</span>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">WhatsApp</label>
+              <div className="relative">
+                <span className="absolute left-3 top-2.5 text-slate-500 dark:text-slate-400 font-medium">🇵🇪 +51</span>
                 <input 
                   required type="tel" inputMode="numeric" placeholder="999 888 777"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-16 pr-4 py-2.5 font-mono focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg pl-16 pr-4 py-2.5 font-mono text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500/50 focus:border-transparent outline-none transition-all"
                   value={formData.telefono} onChange={handlePhoneChange} 
                 />
-             </div>
+              </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Dirección</label>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Dirección</label>
             <input 
               required type="text" placeholder="Dirección de entrega"
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500/50 focus:border-transparent outline-none transition-all"
               value={formData.direccion} onChange={(e) => setFormData({...formData, direccion: e.target.value})} 
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Pedido</label>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Pedido</label>
             <textarea 
               required rows={3} placeholder="Detalle de items..."
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+              className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500/50 focus:border-transparent outline-none resize-none transition-all"
               value={formData.items} onChange={(e) => setFormData({...formData, items: e.target.value})} 
             />
           </div>
 
           <div className="pt-2 flex gap-3">
-            <button type="button" onClick={() => setIsOpen(false)} className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200">Cancelar</button>
-            <button type="submit" disabled={loading} className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg disabled:opacity-50">
+            <button 
+                type="button" 
+                onClick={() => setIsOpen(false)} 
+                className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            >
+                Cancelar
+            </button>
+            <button 
+                type="submit" 
+                disabled={loading} 
+                className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 disabled:opacity-50 disabled:shadow-none transition-all"
+            >
               {loading ? 'Guardando...' : 'Crear Pedido'}
             </button>
           </div>

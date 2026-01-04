@@ -26,7 +26,7 @@ export default function StatsGrid({ metrics }: { metrics: Metrics }) {
         value={`S/ ${metrics.ventasTotales.toLocaleString()}`} 
         icon="💰" 
         trend="+12% vs ayer"
-        trendColor="text-green-500"
+        trendColor="text-green-500 dark:text-green-400"
       />
       
       <KPICard 
@@ -46,7 +46,7 @@ export default function StatsGrid({ metrics }: { metrics: Metrics }) {
         title="Cancelados" 
         value={metrics.cancelados} 
         icon="⚠️" 
-        trendColor="text-red-500"
+        trendColor="text-red-500 dark:text-red-400"
         isDanger
       />
     </div>
@@ -56,16 +56,54 @@ export default function StatsGrid({ metrics }: { metrics: Metrics }) {
 // ✅ APLICAMOS LA INTERFAZ AQUÍ (Adiós al 'any')
 function KPICard({ title, value, icon, subValue, trend, trendColor, isDanger }: KPICardProps) {
   return (
-    <div className={`p-5 rounded-2xl border transition-all hover:shadow-md ${isDanger ? 'bg-red-50 border-red-100' : 'bg-white border-gray-100'}`}>
+    <div className={`
+      p-5 rounded-2xl border transition-all hover:shadow-md 
+      ${isDanger 
+        ? 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/30' 
+        : 'bg-white dark:bg-slate-900 border-gray-100 dark:border-slate-800'
+      }
+    `}>
       <div className="flex justify-between items-start mb-2">
-        <span className="p-2 bg-white/50 rounded-lg text-xl shadow-sm">{icon}</span>
-        {trend && <span className={`text-xs font-bold ${trendColor || 'text-gray-500'} bg-white px-2 py-1 rounded-full shadow-sm`}>{trend}</span>}
+        <span className={`
+            p-2 rounded-lg text-xl shadow-sm transition-colors
+            ${isDanger 
+                ? 'bg-white/50 dark:bg-red-900/20' 
+                : 'bg-white/50 dark:bg-slate-800'
+            }
+        `}>
+            {icon}
+        </span>
+        
+        {trend && (
+            <span className={`
+                text-xs font-bold px-2 py-1 rounded-full shadow-sm transition-colors
+                ${trendColor || 'text-gray-500 dark:text-slate-400'} 
+                bg-white dark:bg-slate-800
+            `}>
+                {trend}
+            </span>
+        )}
       </div>
-      <p className="text-gray-500 text-xs font-bold uppercase tracking-wide">{title}</p>
-      <h4 className={`text-2xl font-black mt-1 ${isDanger ? 'text-red-600' : 'text-gray-800'}`}>
+      
+      <p className="text-gray-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wide transition-colors">
+        {title}
+      </p>
+      
+      <h4 className={`
+        text-2xl font-black mt-1 transition-colors
+        ${isDanger 
+            ? 'text-red-600 dark:text-red-400' 
+            : 'text-gray-800 dark:text-white'
+        }
+      `}>
         {value}
       </h4>
-      {subValue && <p className="text-xs text-gray-400 mt-2 font-medium">{subValue}</p>}
+      
+      {subValue && (
+        <p className="text-xs text-gray-400 dark:text-slate-500 mt-2 font-medium transition-colors">
+            {subValue}
+        </p>
+      )}
     </div>
   );
 }

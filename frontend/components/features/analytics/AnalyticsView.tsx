@@ -49,78 +49,87 @@ export default function AnalyticsView({ pedidos }: Props) {
   }, [pedidosFiltrados]);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 pb-20">
+    // 🔥 CORRECCIÓN: Agregado dark:bg-slate-950 y min-h-screen para pintar todo el fondo
+    <div className="flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-hidden dark:bg-slate-950 transition-colors duration-300">
       
-      {/* HEADER DE FILTROS */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-2 rounded-2xl border border-gray-100 shadow-sm">
-         <div className="px-2">
-            <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wide">Periodo de Análisis</h3>
-            <p className="text-xs text-gray-500">Filtrando por fecha de creación</p>
-         </div>
-         <div className="flex p-1 bg-gray-100 rounded-xl overflow-x-auto no-scrollbar max-w-full w-full sm:w-auto">
-            <div className="flex min-w-max sm:min-w-0">
-               <TimeFilterButton label="Hoy" active={range === 'hoy'} onClick={() => setRange('hoy')} />
-               <TimeFilterButton label="7 Días" active={range === 'semana'} onClick={() => setRange('semana')} />
-               <TimeFilterButton label="30 Días" active={range === 'mes'} onClick={() => setRange('mes')} />
-               <TimeFilterButton label="Año" active={range === 'anio'} onClick={() => setRange('anio')} />
-               <TimeFilterButton label="Todo" active={range === 'todo'} onClick={() => setRange('todo')} />
-            </div>
-         </div>
+       {/* FONDO DECORATIVO (Igual que en OrdersView) */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] bg-size-[24px_24px] opacity-40"></div>
       </div>
 
-      {/* KPI CARDS */}
-      <StatsGrid metrics={metrics} />
-
-      {/* FILA 1: VENTAS Y DONUT */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="relative z-10 space-y-6 pb-20 p-4 md:p-6">
         
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-           <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-gray-800">Tendencia de Ingresos</h3>
-              <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md border border-blue-100 font-bold uppercase">
-                 {range}
-              </span>
-           </div>
-           <div className="h-72 w-full">
-              <SalesChart pedidos={pedidosFiltrados} range={range} />
-           </div>
+        {/* HEADER DE FILTROS */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm transition-colors">
+          <div className="px-2">
+              <h3 className="font-bold text-gray-800 dark:text-white text-sm uppercase tracking-wide">Periodo de Análisis</h3>
+              <p className="text-xs text-gray-500 dark:text-slate-400">Filtrando por fecha de creación</p>
+          </div>
+          <div className="flex p-1 bg-gray-100 dark:bg-slate-800 rounded-xl overflow-x-auto no-scrollbar max-w-full w-full sm:w-auto transition-colors">
+              <div className="flex min-w-max sm:min-w-0">
+                <TimeFilterButton label="Hoy" active={range === 'hoy'} onClick={() => setRange('hoy')} />
+                <TimeFilterButton label="7 Días" active={range === 'semana'} onClick={() => setRange('semana')} />
+                <TimeFilterButton label="30 Días" active={range === 'mes'} onClick={() => setRange('mes')} />
+                <TimeFilterButton label="Año" active={range === 'anio'} onClick={() => setRange('anio')} />
+                <TimeFilterButton label="Todo" active={range === 'todo'} onClick={() => setRange('todo')} />
+              </div>
+          </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
-           <h3 className="font-bold text-gray-800 mb-2">Estado de Órdenes</h3>
-           <div className="flex-1 w-full min-h-75 lg:min-h-0">
-              {pedidosFiltrados.length > 0 ? (
-                 <StatusDonut pedidos={pedidosFiltrados} />
-              ) : (
-                 <div className="h-full flex items-center justify-center text-gray-400 text-xs">Sin datos</div>
-              )}
-           </div>
+        {/* KPI CARDS */}
+        <StatsGrid metrics={metrics} />
+
+        {/* FILA 1: VENTAS Y DONUT */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* GRÁFICO DE VENTAS */}
+          <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 transition-colors">
+            <div className="flex justify-between items-center mb-6">
+                <h3 className="font-bold text-gray-800 dark:text-white">Tendencia de Ingresos</h3>
+                <span className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-md border border-blue-100 dark:border-blue-800 font-bold uppercase transition-colors">
+                    {range}
+                </span>
+            </div>
+            <div className="h-72 w-full">
+                <SalesChart pedidos={pedidosFiltrados} range={range} />
+            </div>
+          </div>
+
+          {/* GRÁFICO DONUT */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex flex-col transition-colors">
+            <h3 className="font-bold text-gray-800 dark:text-white mb-2">Estado de Órdenes</h3>
+            <div className="flex-1 w-full min-h-75 lg:min-h-0">
+                {pedidosFiltrados.length > 0 ? (
+                  <StatusDonut pedidos={pedidosFiltrados} />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-gray-400 dark:text-slate-600 text-xs">Sin datos</div>
+                )}
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* FILA 2: HORAS PICO Y TOP RIDERS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         
+        {/* FILA 2: HORAS PICO Y TOP RIDERS */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          {/* GRÁFICO 4: HORAS PICO */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 transition-colors">
+              <h3 className="font-bold text-gray-800 dark:text-white mb-1">🔥 Horas de Mayor Demanda</h3>
+              <p className="text-xs text-gray-400 dark:text-slate-500 mb-4">Concentración de pedidos por hora</p>
+              <div className="h-64 w-full">
+                <PeakHoursChart pedidos={pedidosFiltrados} />
+              </div>
+          </div>
 
-         {/* GRÁFICO 4: HORAS PICO */}
-         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="font-bold text-gray-800 mb-1">🔥 Horas de Mayor Demanda</h3>
-            <p className="text-xs text-gray-400 mb-4">Concentración de pedidos por hora</p>
-            <div className="h-64 w-full">
-               <PeakHoursChart pedidos={pedidosFiltrados} />
-            </div>
-         </div>
+          {/* GRÁFICO 4: TOP RIDERS */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 transition-colors">
+              <h3 className="font-bold text-gray-800 dark:text-white mb-1">🏍️ Top Repartidores</h3>
+              <p className="text-xs text-gray-400 dark:text-slate-500 mb-4">Mayor cantidad de entregas completadas</p>
+              <div className="h-64 w-full">
+                <RiderPerformanceChart pedidos={pedidosFiltrados} />
+              </div>
+          </div>
 
-         {/* GRÁFICO 4: TOP RIDERS (RRHH / Incentivos) - NUEVO 🔥 */}
-         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="font-bold text-gray-800 mb-1">🏍️ Top Repartidores</h3>
-            <p className="text-xs text-gray-400 mb-4">Mayor cantidad de entregas completadas</p>
-            <div className="h-64 w-full">
-               {/* Usamos el nuevo componente */}
-               <RiderPerformanceChart pedidos={pedidosFiltrados} />
-            </div>
-         </div>
-
+        </div>
       </div>
     </div>
   );
@@ -132,8 +141,8 @@ function TimeFilterButton({ label, active, onClick }: { label: string, active: b
          onClick={onClick}
          className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
             active 
-             ? 'bg-white text-blue-600 shadow-sm border border-gray-200' 
-             : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+            ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm border border-gray-200 dark:border-slate-600' 
+            : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-slate-700/50'
          }`}
       >
          {label}

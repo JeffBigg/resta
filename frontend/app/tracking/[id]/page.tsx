@@ -1,7 +1,8 @@
 import { getPedidoByDocumentId } from '../../../lib/api'; 
 import Link from 'next/link';
-// IMPORTANTE: Importamos el tipo para que TypeScript no se queje en el map
 import { ItemPedido } from '@/types'; 
+// 👇 IMPORTANTE: Importamos el motor de recarga que creamos arriba
+import TrackingRefresher from '@/components/features/tracking/TrackingRefresher';
 
 // Definimos los pasos lógicos de una entrega
 const STEPS = [
@@ -11,15 +12,14 @@ const STEPS = [
   { status: 'Entregado', label: 'Entregado', icon: '🎉' }
 ];
 
-// 1. EL FIX: Definimos el tipo exacto que espera Next.js
 interface Props {
   params: Promise<{ id: string }>;
 }
 
 export default async function TrackingPage({ params }: Props) {
-  // 2. AWAIT: Desempaquetamos la promesa para obtener el ID limpio
   const { id } = await params;
   
+  // Obtenemos los datos frescos del servidor
   const pedido = await getPedidoByDocumentId(id);
 
   if (!pedido) {
@@ -41,12 +41,14 @@ export default async function TrackingPage({ params }: Props) {
   return (
     <main className="min-h-screen bg-white flex flex-col items-center py-12 px-4">
       
+      {/* 👇 MOTOR DE AUTO-REFRESH: Esto mantiene la página viva */}
+      <TrackingRefresher />
+
       {/* Tarjeta del Tracking */}
       <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         
         {/* Cabecera con Mapa Simulado */}
         <div className="h-32 bg-blue-600 flex items-center justify-center relative overflow-hidden">
-            {/* Patrón de fondo CSS puro */}
             <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#fff_1px,transparent_1px)] bg-size-[16px_16px]"></div>
             <h1 className="text-white text-2xl font-bold z-10 relative">Seguimiento de Pedido</h1>
         </div>
@@ -86,7 +88,7 @@ export default async function TrackingPage({ params }: Props) {
 
           {/* Información del Rider */}
           {pedido.repartidor && (
-            <div className="bg-gray-50 rounded-xl p-4 flex items-center gap-4 mt-8 border border-gray-200">
+            <div className="bg-gray-50 rounded-xl p-4 flex items-center gap-4 mt-8 border border-gray-200 animate-in fade-in duration-700">
               <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xl">
                 🛵
               </div>
@@ -100,16 +102,16 @@ export default async function TrackingPage({ params }: Props) {
             </div>
           )}
 
-          {/* Detalle del pedido (CORREGIDO) */}
+          {/* Detalle del pedido */}
           <div className="mt-8 border-t pt-6">
             <p className="text-sm font-bold text-gray-900 mb-2">Detalle de la orden:</p>
             <ul className="text-sm text-gray-600 space-y-2">
               {pedido.detalle_pedido.items.map((item, i) => {
-                // CORRECCIÓN: Verificamos si es texto o objeto antes de imprimir
+                // Caso A: Texto simple (Web antigua)
                 if (typeof item === 'string') {
                     return <li key={i}>• {item}</li>;
                 }
-                // Si es objeto (n8n/WhatsApp), renderizamos nombre y cantidad
+                // Caso B: Objeto (n8n/WhatsApp)
                 return (
                     <li key={i} className="flex justify-between items-center w-full">
                         <span>• {(item as ItemPedido).nombre}</span>

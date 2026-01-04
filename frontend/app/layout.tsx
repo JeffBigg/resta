@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Providers } from "@/components/providers/Providers"; // <--- IMPORTANTE: Asegúrate de tener este archivo
+import { Providers } from "@/components/providers/Providers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,12 +24,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // 1. Cambiamos a español
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* 2. Envolvemos la app con el Proveedor de Sesión */}
         <Providers>
           {children}
         </Providers>
