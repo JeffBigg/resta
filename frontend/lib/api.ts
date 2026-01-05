@@ -89,9 +89,16 @@ function extractRelation<T>(input: unknown): T[] {
 // ==========================================
 
 // --- PEDIDOS ---
+// lib/api.ts
+
 export async function getPedidos(): Promise<Pedido[]> {
   try {
-    const res = await fetch(getApiUrl("pedidos?populate=*"), { cache: 'no-store' });
+    // 🔥 CAMBIO AQUÍ: Agregamos '&sort=createdAt:desc'
+    // Esto obliga a Strapi a mandarnos el pedido más reciente en la posición [0]
+    const res = await fetch(getApiUrl("pedidos?populate=*&sort=createdAt:desc"), { 
+      cache: 'no-store' 
+    });
+    
     if (!res.ok) throw new Error(`Error ${res.status}`);
     const json = await res.json();
     return json.data || [];
