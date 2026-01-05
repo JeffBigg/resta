@@ -1,80 +1,144 @@
 @import "tailwindcss";
 
-/* 1. ACTIVAR MODO OSCURO POR CLASE (Vital en Tailwind v4) */
-@custom-variant dark (&:where(.dark, .dark *));
-
+/* 1. CONFIGURACIÓN DEL TEMA */
 @theme {
-  /* Tus fuentes actuales */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Mapeo de Variables */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 }
 
-/* 2. VARIABLES DE COLOR SEMÁNTICAS */
 :root {
-  /* --- MODO CLARO (Light) --- */
-  /* Fondo principal: Slate-50 */
-  --background: #f8fafc; 
-  /* Textos principales: Slate-900 */
-  --foreground: #0f172a; 
-  
-  /* Superficies (Tarjetas): White */
+  /* --- MODO CLARO (Limpio y Corporativo) --- */
+  --background: #ffffff;
+  --foreground: #09090b;       /* Zinc-950 */
+
   --card: #ffffff;
-  --card-foreground: #0f172a;
-  
-  /* Bordes sutiles: Slate-200 */
-  --border: #e2e8f0;
-  
-  /* Inputs: White */
-  --input: #ffffff;
-  
-  /* Acentos (Tu azul corporativo) */
-  --primary: #2563eb;
+  --card-foreground: #09090b;
+
+  --popover: #ffffff;
+  --popover-foreground: #09090b;
+
+  /* Primary: Azul Indigo Profesional (Como Stripe) */
+  --primary: #4f46e5;          /* Indigo-600 */
   --primary-foreground: #ffffff;
+
+  --secondary: #f4f4f5;        /* Zinc-100 */
+  --secondary-foreground: #18181b;
+
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a; /* Zinc-500 */
+
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #e4e4e7;           /* Zinc-200 */
+  --input: #e4e4e7;
+  --ring: #4f46e5;
+
+  --radius: 0.75rem;
 }
 
+/* --- MODO OSCURO (Estilo "Matte Charcoal" - Tipo Gemini/ChatGPT) --- */
 .dark {
-  /* --- MODO OSCURO (Dark - "Deep Space") --- */
-  /* Fondo principal: Slate-950 (No negro puro, más elegante) */
-  --background: #020617; 
-  /* Textos principales: Slate-50 */
-  --foreground: #f8fafc; 
+  /* Fondo: Un gris carbón profundo, NO negro puro. Esto elimina el contraste duro. */
+  --background: #141415; 
   
-  /* Superficies (Tarjetas): Slate-900 */
-  --card: #0f172a; 
-  --card-foreground: #f8fafc;
-  
-  /* Bordes sutiles: Slate-800 */
-  --border: #1e293b; 
-  
-  /* Inputs: Slate-950 */
-  --input: #020617;
-  
-  /* Acentos (Azul un poco más brillante para resaltar) */
-  --primary: #3b82f6;
+  /* Texto: Blanco hueso (Off-white). Relaja la lectura. */
+  --foreground: #ededed; 
+
+  /* Tarjetas/Sidebar: Un gris un poco más claro para separar capas (El gris de tu imagen) */
+  --card: #1c1c1f; 
+  --card-foreground: #ededed;
+
+  --popover: #1c1c1f;
+  --popover-foreground: #ededed;
+
+  /* Primary: Un Indigo/Azul suave que brilla bien sobre gris mate */
+  --primary: #6366f1;          /* Indigo-500 */
   --primary-foreground: #ffffff;
+
+  /* Secondary: Para botones secundarios o áreas de relleno */
+  --secondary: #27272a;        /* Zinc-800 */
+  --secondary-foreground: #fafafa;
+
+  /* Muted: Textos secundarios */
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa; /* Zinc-400 */
+
+  /* Accent: Hover en listas */
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+
+  /* Destructive: Rojo semántico pero no neon */
+  --destructive: #991b1b;
+  --destructive-foreground: #fafafa;
+
+  /* Bordes: Muy sutiles, apenas visibles para separar secciones */
+  --border: #2e2e32;
+  --input: #2e2e32;
+  --ring: #4338ca;
 }
 
-/* 3. APLICACIÓN GLOBAL */
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
+/* UTILIDADES */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  *, ::after, ::before {
+    @apply border-border;
+  }
   
-  /* Suavizado de fuentes */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  
-  /* Transición suave al cambiar de tema */
-  transition: background-color 0.3s ease, color 0.3s ease;
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
 }
 
-/* Utilidad para bordes usando nuestras variables */
-@utility border-border {
-  border-color: var(--border);
+/* Scrollbar minimalista (Gris oscuro) */
+@layer base {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent; 
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-zinc-700/50 rounded-full border-[3px] border-solid border-transparent bg-clip-content;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-zinc-600/80;
+  }
 }
-@utility bg-card {
-  background-color: var(--card);
-}
-@utility text-card-foreground {
-  color: var(--card-foreground);
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar { display: none; }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

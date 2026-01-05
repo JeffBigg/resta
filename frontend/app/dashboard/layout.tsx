@@ -10,7 +10,11 @@ export default function DashboardLayout({
 }) {
   return (
     <UIProvider>
-      <div className="flex h-screen bg-slate-50 overflow-hidden">
+      {/* 🔥 CORRECCIÓN CLAVE: 
+          Cambiamos 'bg-slate-50' por 'bg-background text-foreground'.
+          Ahora el fondo reacciona automáticamente al tema (claro/oscuro).
+      */}
+      <div className="flex h-screen bg-background text-foreground overflow-hidden transition-colors duration-300">
         
         {/* Sidebar Fijo */}
         <Sidebar />
@@ -20,10 +24,6 @@ export default function DashboardLayout({
           
           <Header />
 
-          {/* CORRECCIÓN CLAVE AQUÍ:
-             1. Quitamos 'p-4 md:p-8' para permitir diseños full-width.
-             2. Mantenemos 'overflow-y-auto' para el scroll.
-          */}
           <main className="flex-1 overflow-y-auto scroll-smooth">
             <div className="animate-in fade-in duration-500 min-h-full">
               {children}

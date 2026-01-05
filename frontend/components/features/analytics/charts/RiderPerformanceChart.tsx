@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Pedido } from '@/types';
 
-// ✅ SOLUCIÓN: Interfaz tipada
+// ✅ SOLUCIÓN: Interfaz tipada y Estilos Escalables
 interface CustomTooltipProps {
   active?: boolean;
   payload?: { value: number }[];
@@ -14,11 +14,11 @@ interface CustomTooltipProps {
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-3 rounded-xl shadow-xl shadow-slate-200/50 dark:shadow-black/50">
-        <p className="text-slate-800 dark:text-white font-bold text-sm mb-1">{label}</p>
+      <div className="bg-popover border border-border p-3 rounded-xl shadow-xl shadow-black/5">
+        <p className="text-foreground font-bold text-sm mb-1">{label}</p>
         <div className="flex items-center gap-2">
-           <span className="text-xs text-slate-500 dark:text-slate-400">Entregas completadas:</span>
-           <span className="text-blue-600 dark:text-blue-400 font-bold text-sm">{payload[0].value}</span>
+           <span className="text-xs text-muted-foreground">Entregas completadas:</span>
+           <span className="text-primary font-bold text-sm">{payload[0].value}</span>
         </div>
       </div>
     );
@@ -48,7 +48,7 @@ export default function RiderPerformanceChart({ pedidos }: { pedidos: Pedido[] }
 
   if (data.length === 0) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-600 opacity-60">
+      <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-60">
         <span className="text-4xl mb-2">🛵</span>
         <span className="text-xs">Sin entregas registradas</span>
       </div>
@@ -58,15 +58,30 @@ export default function RiderPerformanceChart({ pedidos }: { pedidos: Pedido[] }
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#64748b" strokeOpacity={0.2} />
-        <XAxis type="number" hide />
-        <YAxis dataKey="name" type="category" width={90} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 600 }} tickLine={false} axisLine={false} />
+        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="var(--border)" strokeOpacity={0.6} />
         
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: '#3b82f6', opacity: 0.1 }} />
+        <XAxis type="number" hide />
+        
+        <YAxis 
+            dataKey="name" 
+            type="category" 
+            width={90} 
+            tick={{ fill: 'var(--muted-foreground)', fontSize: 11, fontWeight: 600 }} 
+            tickLine={false} 
+            axisLine={false} 
+        />
+        
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--muted)', opacity: 0.4 }} />
         
         <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={24}>
            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={index === 0 ? '#F59E0B' : index === 1 ? '#94A3B8' : index === 2 ? '#B45309' : '#3b82f6'} />
+              // Usamos colores fijos para los metales (Oro, Plata, Bronce) pero el resto usa Primary
+              <Cell key={`cell-${index}`} fill={
+                  index === 0 ? '#F59E0B' : 
+                  index === 1 ? '#94A3B8' : 
+                  index === 2 ? '#B45309' : 
+                  'var(--primary)'
+              } />
            ))}
         </Bar>
       </BarChart>

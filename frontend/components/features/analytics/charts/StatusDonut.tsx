@@ -4,20 +4,21 @@ import { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Pedido } from '@/types';
 
+// Los colores del Donut suelen ser semánticos fijos (Verde=Bien, Rojo=Mal), 
+// pero podemos usar variables para el "Pendiente" (Azul) para que coincida con el tema.
 const COLORS = {
-  Entregado: '#10b981', 
-  Cancelado: '#ef4444', 
-  Pendiente: '#3b82f6', 
+  Entregado: '#10b981', // Emerald
+  Cancelado: '#ef4444', // Red
+  Pendiente: 'var(--primary)', // Blue del tema
 };
 
-// ✅ SOLUCIÓN: Definimos la estructura del payload específico para el Donut
 interface CustomTooltipProps {
   active?: boolean;
   payload?: {
     name: string;
     value: number;
     payload: {
-      color: string; // Necesitamos esto para pintar la bolita del color correcto
+      color: string;
     };
   }[];
 }
@@ -27,13 +28,12 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
     const data = payload[0];
     
     return (
-      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-3 rounded-xl shadow-xl shadow-slate-200/50 dark:shadow-black/50">
+      <div className="bg-popover border border-border p-3 rounded-xl shadow-xl shadow-black/5">
          <div className="flex items-center gap-2 mb-1">
-             {/* Accedemos al color original desde payload.payload */}
              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: data.payload.color }}></div>
-             <p className="text-slate-700 dark:text-slate-200 font-bold text-sm">{data.name}</p>
+             <p className="text-muted-foreground font-bold text-sm">{data.name}</p>
          </div>
-         <p className="text-2xl font-black text-slate-800 dark:text-white pl-4">
+         <p className="text-2xl font-black text-foreground pl-4">
             {data.value}
          </p>
       </div>
@@ -67,7 +67,16 @@ export default function StatusDonut({ pedidos }: { pedidos: Pedido[] }) {
           ))}
         </Pie>
         <Tooltip content={<CustomTooltip />} />
-        <Legend verticalAlign="bottom" height={36} iconType="circle" formatter={(value) => (<span className="text-xs text-slate-500 dark:text-slate-400 font-medium ml-1">{value}</span>)} />
+        <Legend 
+            verticalAlign="bottom" 
+            height={36} 
+            iconType="circle" 
+            formatter={(value) => (
+                <span className="text-xs text-muted-foreground font-medium ml-1">
+                    {value}
+                </span>
+            )} 
+        />
       </PieChart>
     </ResponsiveContainer>
   );

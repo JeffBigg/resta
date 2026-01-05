@@ -9,13 +9,13 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { isSidebarOpen, closeSidebar } = useUI();
 
-  // Función para determinar estilos activos
+  // Función para determinar estilos activos usando variables semánticas
   const getLinkClass = (path: string) => {
     const isActive = pathname.startsWith(path);
-    return `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-sm relative overflow-hidden ${
+    return `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-sm relative overflow-hidden outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
       isActive
-        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
-        : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' // Activo: Usa color primario
+        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' // Inactivo: Usa colores de acento
     }`;
   };
 
@@ -23,7 +23,7 @@ export default function Sidebar() {
     <>
       {/* OVERLAY PARA MÓVIL */}
       <div 
-        className={`fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+        className={`fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
           isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={closeSidebar}
@@ -31,25 +31,25 @@ export default function Sidebar() {
 
       {/* ASIDE PRINCIPAL */}
       <aside
-        className={`fixed top-0 left-0 z-60 h-full w-72 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 shadow-2xl md:shadow-none transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static flex flex-col ${
+        className={`fixed top-0 left-0 z-60 h-full w-72 bg-card border-r border-border shadow-2xl md:shadow-none transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static flex flex-col ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* --- HEADER DEL SIDEBAR (LOGO) --- */}
-        <div className="h-20 flex items-center px-8 border-b border-slate-50 dark:border-slate-800">
+        <div className="h-20 flex items-center px-8 border-b border-border">
           <div className="flex items-center gap-3">
             {/* Logo Icono */}
-            <div className="w-8 h-8 rounded-lg bg-linear-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/30">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
               </svg>
             </div>
             {/* Logo Texto */}
             <div className="flex flex-col">
-              <span className="text-lg font-bold text-slate-800 dark:text-white tracking-tight leading-none">
+              <span className="text-lg font-bold text-card-foreground tracking-tight leading-none">
                 FluentOps
               </span>
-              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">
+              <span className="text-[10px] font-bold text-primary uppercase tracking-widest">
                 Admin Panel
               </span>
             </div>
@@ -61,7 +61,7 @@ export default function Sidebar() {
           
           {/* GRUPO 1: PRINCIPAL */}
           <div>
-            <p className="px-4 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">
+            <p className="px-4 text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3">
               Operaciones
             </p>
             <div className="space-y-1">
@@ -72,7 +72,7 @@ export default function Sidebar() {
                 <span>Pedidos</span>
                 {/* Indicador opcional de actividad */}
                 {pathname.startsWith('/dashboard/pedidos') && (
-                  <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse" />
+                  <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-primary-foreground/50 animate-pulse" />
                 )}
               </Link>
 
@@ -88,7 +88,7 @@ export default function Sidebar() {
 
           {/* GRUPO 2: GESTIÓN */}
           <div>
-            <p className="px-4 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">
+            <p className="px-4 text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3">
               Recursos Humanos
             </p>
             <div className="space-y-1">
@@ -111,12 +111,12 @@ export default function Sidebar() {
         </nav>
 
         {/* --- FOOTER DEL SIDEBAR (PERFIL) --- */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900">
+        <div className="p-4 border-t border-border bg-muted/20">
           
           {/* Botón Cerrar Sesión */}
           <button 
             onClick={() => signOut({ callbackUrl: '/login' })}
-            className="group flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+            className="group flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 transition-transform group-hover:-translate-x-1">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />

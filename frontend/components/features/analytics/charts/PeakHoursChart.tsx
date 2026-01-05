@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Pedido } from '@/types';
 
-// ✅ SOLUCIÓN: Definimos la interfaz exacta de las props
+// ✅ SOLUCIÓN: Interfaz tipada y Estilos Escalables
 interface CustomTooltipProps {
   active?: boolean;
   payload?: { value: number }[];
@@ -14,11 +14,11 @@ interface CustomTooltipProps {
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-3 rounded-xl shadow-xl shadow-slate-200/50 dark:shadow-black/50 transition-all">
-        <p className="text-slate-500 dark:text-slate-400 text-xs font-bold mb-1 uppercase tracking-wider">{label}</p>
+      <div className="bg-popover border border-border p-3 rounded-xl shadow-xl shadow-black/5 transition-all">
+        <p className="text-muted-foreground text-xs font-bold mb-1 uppercase tracking-wider">{label}</p>
         <div className="flex items-center gap-2">
-           <span className="w-2 h-2 rounded-full bg-violet-500"></span>
-           <p className="text-slate-800 dark:text-white font-bold text-sm">
+           <span className="w-2 h-2 rounded-full bg-primary"></span>
+           <p className="text-foreground font-bold text-sm">
              {payload[0].value} Pedidos
            </p>
         </div>
@@ -50,20 +50,39 @@ export default function PeakHoursChart({ pedidos }: { pedidos: Pedido[] }) {
       <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
         <defs>
           <linearGradient id="colorPedidos" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4}/>
-            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+            {/* Usamos currentColor o variables CSS para los gradientes */}
+            <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.4}/>
+            <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
           </linearGradient>
         </defs>
         
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#64748b" strokeOpacity={0.2} />
+        {/* Grid usando variable de borde escalable */}
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" strokeOpacity={0.6} />
         
-        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} interval={3} />
-        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
+        {/* Ejes usando variable de texto secundario */}
+        <XAxis 
+            dataKey="name" 
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }} 
+            interval={3} 
+        />
+        <YAxis 
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} 
+        />
         
-        {/* TypeScript aceptará nuestro componente personalizado sin problemas */}
-        <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#8b5cf6', strokeWidth: 1, strokeDasharray: '4 4' }} />
+        <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'var(--primary)', strokeWidth: 1, strokeDasharray: '4 4' }} />
         
-        <Area type="monotone" dataKey="pedidos" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorPedidos)" />
+        <Area 
+            type="monotone" 
+            dataKey="pedidos" 
+            stroke="var(--primary)" 
+            strokeWidth={3} 
+            fillOpacity={1} 
+            fill="url(#colorPedidos)" 
+        />
       </AreaChart>
     </ResponsiveContainer>
   );

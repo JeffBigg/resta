@@ -12,7 +12,7 @@ const ThemeToggle = dynamic(() => import('@/components/ui/ThemeToggle'), {
   loading: () => <div className="w-9 h-9" />,
 });
 
-// --- CONFIGURACIÓN DE TÍTULOS E ICONOS (SVG) ---
+// --- CONFIGURACIÓN DE TÍTULOS E ICONOS ---
 const getPageConfig = (path: string) => {
   const configs: Record<string, { title: string; icon: React.ReactNode }> = {
     '/dashboard/pedidos': { 
@@ -97,17 +97,14 @@ export default function Header() {
   const userImage = user.image || `https://api.dicebear.com/7.x/initials/svg?seed=${user.name}&backgroundColor=2563eb&textColor=ffffff`;
 
   return (
-    // HEADER CORREGIDO:
-    // 1. Quitamos 'backdrop-blur-md'
-    // 2. Quitamos la opacidad '/80' del bg
-    // 3. Igualamos colores y bordes al Sidebar (bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800)
-    <header className="h-20 px-4 md:px-8 flex items-center justify-between sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-all">
+    // 🔥 CORREGIDO: Cambiado 'bg-background' por 'bg-card' para coincidir con el Sidebar
+    <header className="h-20 px-4 md:px-8 flex items-center justify-between sticky top-0 z-40 bg-card border-b border-border transition-colors duration-300">
       
       {/* --- IZQUIERDA --- */}
       <div className="flex items-center gap-4">
         <button
           onClick={toggleSidebar}
-          className="p-2 -ml-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 md:hidden focus:outline-none active:scale-95 transition-all"
+          className="p-2 -ml-2 rounded-xl text-muted-foreground hover:bg-accent hover:text-accent-foreground md:hidden focus:outline-none active:scale-95 transition-all"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -115,14 +112,14 @@ export default function Header() {
         </button>
 
         <div className="flex items-center gap-3 animate-in fade-in slide-in-from-left-4 duration-500">
-          <div className="hidden md:flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 border border-slate-100 dark:border-slate-700 shadow-sm">
+          <div className="hidden md:flex items-center justify-center w-10 h-10 rounded-xl bg-accent text-primary border border-border shadow-sm">
              {currentInfo.icon}
           </div>
           <div className="flex flex-col">
-             <h1 className="font-bold text-slate-800 dark:text-slate-100 text-lg md:text-xl tracking-tight leading-none">
+             <h1 className="font-bold text-foreground text-lg md:text-xl tracking-tight leading-none">
                {currentInfo.title}
              </h1>
-             <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden md:block mt-1">
+             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest hidden md:block mt-1">
                FluentOps Dashboard
              </span>
           </div>
@@ -132,11 +129,11 @@ export default function Header() {
       {/* --- DERECHA --- */}
       <div className="flex items-center gap-4 md:gap-6">
         
-        <div className="hidden lg:flex flex-col items-end text-right border-r border-slate-200 dark:border-slate-800 pr-6 h-10 justify-center">
-            <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+        <div className="hidden lg:flex flex-col items-end text-right border-r border-border pr-6 h-10 justify-center">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                 Hoy
             </span>
-            <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 capitalize">
+            <span className="text-sm font-semibold text-foreground capitalize">
                 {dateString || 'Cargando...'}
             </span>
         </div>
@@ -146,14 +143,14 @@ export default function Header() {
         <div className="relative">
           <button 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-3 p-1 pl-3 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all focus:outline-none group"
+            className="flex items-center gap-3 p-1 pl-3 rounded-full hover:bg-accent border border-transparent hover:border-border transition-all focus:outline-none group"
           >
             <div className="text-right hidden md:block">
               {status === 'loading' ? (
-                <div className="h-8 w-24 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+                <div className="h-8 w-24 bg-muted rounded animate-pulse" />
               ) : (
                 <>
-                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-none group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
+                  <p className="text-sm font-bold text-foreground leading-none group-hover:text-primary transition-colors">
                     {user.name}
                   </p>
                   <div className="flex items-center justify-end gap-1 mt-1">
@@ -161,14 +158,14 @@ export default function Header() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                     </span>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wide">Online</p>
+                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Online</p>
                   </div>
                 </>
               )}
             </div>
             
-            <div className="h-10 w-10 rounded-full p-0.5 bg-linear-to-tr from-blue-500 to-indigo-500 shadow-md group-hover:shadow-blue-500/25 transition-all">
-               <div className="h-full w-full rounded-full overflow-hidden bg-white dark:bg-slate-900 border-2 border-white dark:border-slate-900">
+            <div className="h-10 w-10 rounded-full p-0.5 bg-linear-to-tr from-blue-500 to-indigo-500 shadow-md group-hover:shadow-primary/25 transition-all">
+               <div className="h-full w-full rounded-full overflow-hidden bg-card border-2 border-card">
                  <img 
                    src={userImage}  
                    alt="User" 
@@ -182,19 +179,19 @@ export default function Header() {
             <>
               <div className="fixed inset-0 z-30 cursor-default" onClick={() => setIsDropdownOpen(false)} />
               
-              <div className="absolute right-0 mt-3 w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-800 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+              <div className="absolute right-0 mt-3 w-72 bg-popover text-popover-foreground rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/50 border border-border z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
                 
-                <div className="px-6 py-5 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                  <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Conectado como</p>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">{user.name}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate font-mono mt-0.5">{user.email}</p>
+                <div className="px-6 py-5 border-b border-border bg-muted/30">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Conectado como</p>
+                  <p className="text-sm font-bold text-foreground truncate">{user.name}</p>
+                  <p className="text-xs text-muted-foreground truncate font-mono mt-0.5">{user.email}</p>
                 </div>
 
                 <div className="p-2">
                   <Link 
                     href="/dashboard/perfil" 
                     onClick={() => setIsDropdownOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground rounded-xl hover:bg-accent hover:text-primary transition-colors"
                   >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -202,13 +199,13 @@ export default function Header() {
                       Mi Perfil
                   </Link>
                   
-                  <div className="my-1 border-t border-slate-50 dark:border-slate-800 mx-2" />
+                  <div className="my-1 border-t border-border mx-2" />
 
                   <button 
                     onClick={() => signOut({ callbackUrl: '/login' })}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50/50 dark:bg-red-900/10 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors group"
+                    className="flex w-full items-center gap-3 px-4 py-3 text-sm font-semibold text-destructive hover:bg-destructive/10 rounded-xl transition-colors group"
                   >
-                    <div className="p-1.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors">
+                    <div className="p-1.5 bg-destructive/10 text-destructive rounded-lg group-hover:bg-destructive/20 transition-colors">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
                       </svg>

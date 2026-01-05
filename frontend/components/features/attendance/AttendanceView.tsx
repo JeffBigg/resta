@@ -40,15 +40,15 @@ export default function AttendanceView() {
   }, [data, searchTerm]);
 
   return (
-    // Se añade dark:bg-slate-950 y min-h-screen
-    <div className="space-y-6 animate-in fade-in pb-24 md:pb-10 min-h-screen dark:bg-slate-950 transition-colors">
+    // 1. FONDO PRINCIPAL ESCALABLE: bg-background
+    <div className="space-y-6 animate-in fade-in pb-24 md:pb-10 min-h-screen bg-background text-foreground transition-colors">
       
-      {/* FONDO DECORATIVO (Opcional, igual que en OrdersView) */}
+      {/* FONDO DECORATIVO (Patrón de puntos sutil que usa currentColor) */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-          <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] bg-size-[24px_24px] opacity-40"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(currentColor_1px,transparent_1px)] bg-size-[24px_24px] opacity-[0.03]"></div>
       </div>
 
-      <div className="relative z-10 space-y-6">
+      <div className="relative z-10 space-y-6 px-4 md:px-8">
           <AttendanceHeader 
             vista={vista} setVista={setVista}
             rangoFecha={rangoFecha} setRangoFecha={setRangoFecha}

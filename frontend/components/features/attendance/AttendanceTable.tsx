@@ -16,7 +16,7 @@ const formatHora = (date: Date | null) => date ? date.toLocaleTimeString([], {ho
 export default function AttendanceTable({ loading, vista, datosReporte, datosHistorial }: Props) {
     if (loading) {
         return (
-            <div className="hidden md:block bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 text-center text-slate-500 dark:text-slate-400 transition-colors">
+            <div className="hidden md:block bg-card rounded-xl shadow-sm border border-border p-8 text-center text-muted-foreground transition-colors">
                 Cargando información...
             </div>
         );
@@ -26,35 +26,35 @@ export default function AttendanceTable({ loading, vista, datosReporte, datosHis
 
     if (dataToShow.length === 0) {
         return (
-            <div className="hidden md:block bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-10 text-center text-slate-400 dark:text-slate-500 transition-colors">
+            <div className="hidden md:block bg-card rounded-xl shadow-sm border border-border p-10 text-center text-muted-foreground transition-colors">
                 Sin registros para mostrar.
             </div>
         );
     }
 
     return (
-        <div className="hidden md:block bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
+        <div className="hidden md:block bg-card rounded-xl shadow-sm border border-border overflow-hidden transition-colors">
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                    <thead className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                    <thead className="bg-muted/40 border-b border-border">
                         <tr>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Empleado</th>
+                            <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Empleado</th>
                             {vista === 'reporte' ? (
                                 <>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Horario</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Fecha</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Horario</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Total</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Estado</th>
                                 </>
                             ) : (
                                 <>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Evento</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hora</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Evento</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Hora</th>
                                 </>
                             )}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody className="divide-y divide-border">
                         {vista === 'reporte' 
                             ? (datosReporte).map((row) => <DesktopReportRow key={row.id} row={row} />)
                             : (datosHistorial).map((row) => <DesktopHistoryRow key={row.documentId || String(row.id)} row={row} />)
@@ -70,25 +70,25 @@ function DesktopReportRow({ row }: { row: ReporteFila }) {
     const statusString = row.esTarde ? 'Tarde' : row.estado;
 
     return (
-        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+        <tr className="hover:bg-muted/50 transition-colors group">
             <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                     <Avatar nombre={row.empleado.nombre} />
                     <div>
-                        <p className="font-semibold text-slate-700 dark:text-slate-200">{row.empleado.nombre}</p>
-                        <p className="text-xs text-slate-400 dark:text-slate-500">{row.empleado.rol}</p>
+                        <p className="font-semibold text-foreground">{row.empleado.nombre}</p>
+                        <p className="text-xs text-muted-foreground">{row.empleado.rol}</p>
                     </div>
                 </div>
             </td>
-            <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{row.fecha}</td>
+            <td className="px-6 py-4 text-sm text-muted-foreground">{row.fecha}</td>
             <td className="px-6 py-4 text-sm font-mono">
                 <div className="flex flex-col gap-1">
                     <span className="text-green-600 dark:text-green-400 text-xs font-medium">IN : {formatHora(row.horaEntrada)}</span>
-                    <span className="text-red-600 dark:text-red-400 text-xs font-medium">OUT: {formatHora(row.horaSalida)}</span>
+                    <span className="text-destructive text-xs font-medium">OUT: {formatHora(row.horaSalida)}</span>
                 </div>
             </td>
             <td className="px-6 py-4">
-                <span className="font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md text-xs border border-slate-200 dark:border-slate-700">
+                <span className="font-bold text-foreground bg-muted px-2.5 py-1 rounded-md text-xs border border-border">
                     {row.tiempoTrabajadoNeto}
                 </span>
             </td>
@@ -103,15 +103,15 @@ function DesktopHistoryRow({ row }: { row: Asistencia }) {
     const emp = row.empleado as unknown as Empleado | null;
     const nombre = emp?.nombre || 'S/N';
     return (
-        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+        <tr className="hover:bg-muted/50 transition-colors">
             <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                     <Avatar nombre={nombre} />
-                    <span className="font-medium text-slate-700 dark:text-slate-200">{nombre}</span>
+                    <span className="font-medium text-foreground">{nombre}</span>
                 </div>
             </td>
             <td className="px-6 py-4"><EventBadge tipo={row.tipo} /></td>
-            <td className="px-6 py-4 font-mono text-slate-600 dark:text-slate-400">
+            <td className="px-6 py-4 font-mono text-muted-foreground">
                 {formatHora(new Date(row.fecha_registro))}
             </td>
         </tr>
