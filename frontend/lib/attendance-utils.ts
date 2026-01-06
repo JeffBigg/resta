@@ -1,7 +1,7 @@
-import { Asistencia, Empleado } from './api';
+import { Asistencia, Empleado } from "@/types";
 
 // --- CONFIGURACIÓN ---
-const HORA_ENTRADA_BASE = 9; 
+const HORA_ENTRADA_BASE = 9;
 const MINUTOS_TOLERANCIA = 15;
 
 // --- TIPOS EXPORTADOS ---
@@ -15,11 +15,11 @@ export interface ReporteFila {
   finRefrigerio: Date | null;
   tiempoRefrigerio: number; // milisegundos
   tiempoTrabajadoNeto: string; // "8h 30m"
-  estado: 'Puntual' | 'Tarde' | 'Falta Salida' | 'Ausente';
+  estado: "Puntual" | "Tarde" | "Falta Salida" | "Ausente";
   esTarde: boolean;
 }
 
-export type RangoFecha = 'hoy' | 'semana' | 'mes';
+export type RangoFecha = "hoy" | "semana" | "mes";
 
 // --- HELPER PRIVADO ---
 const msToTime = (duration: number): string => {
@@ -30,24 +30,33 @@ const msToTime = (duration: number): string => {
 };
 
 // --- FUNCIÓN PRINCIPAL ---
-export function procesarReporte(data: Asistencia[], rango: RangoFecha): ReporteFila[] {
+export function procesarReporte(
+  data: Asistencia[],
+  rango: RangoFecha
+): ReporteFila[] {
   const reporte: Record<string, ReporteFila> = {};
-  
+
   // 1. Filtro de Fechas
   const hoy = new Date();
-  const inicioSemana = new Date(new Date().setDate(hoy.getDate() - hoy.getDay() + 1));
-  const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const inicioSemana = new Date(
+    new Date().setDate(hoy.getDate() - hoy.getDay() + 1)
+  );
+  const inicioMes = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    1
+  );
 
-  const dataFiltrada = data.filter(item => {
+  const dataFiltrada = data.filter((item) => {
     const fechaItem = new Date(item.fecha_registro);
     // Normalizamos a las 00:00:00 para comparar solo fechas
-    fechaItem.setHours(0,0,0,0);
+    fechaItem.setHours(0, 0, 0, 0);
     const fechaHoy = new Date();
-    fechaHoy.setHours(0,0,0,0);
+    fechaHoy.setHours(0, 0, 0, 0);
 
-    if (rango === 'hoy') return fechaItem.getTime() === fechaHoy.getTime();
-    if (rango === 'semana') return fechaItem >= inicioSemana;
-    if (rango === 'mes') return fechaItem >= inicioMes;
+    if (rango === "hoy") return fechaItem.getTime() === fechaHoy.getTime();
+    if (rango === "semana") return fechaItem >= inicioSemana;
+    if (rango === "mes") return fechaItem >= inicioMes;
     return true;
   });
 
@@ -55,13 +64,16 @@ export function procesarReporte(data: Asistencia[], rango: RangoFecha): ReporteF
   dataFiltrada.forEach((registro) => {
     // Verificación de tipo segura para 'empleado'
     // Asumimos que la API ya normalizó el objeto, pero TypeScript necesita confirmación
-    const empData = registro.empleado as unknown as Empleado | null; 
+    const empData = registro.empleado as unknown as Empleado | null;
 
     if (!empData) return;
 
-    const fechaSimple = new Date(registro.fecha_registro).toLocaleDateString('es-PE');
+    const fechaSimple = new Date(registro.fecha_registro).toLocaleDateString(
+      "es-PE"
+    );
     // Usamos documentId o fallback a id
-    const empId = empData.documentId || (empData.id ? String(empData.id) : 'unknown');
+    const empId =
+      empData.documentId || (empData.id ? String(empData.id) : "unknown");
     const key = `${empId}_${fechaSimple}`;
 
     if (!reporte[key]) {
@@ -74,9 +86,9 @@ export function procesarReporte(data: Asistencia[], rango: RangoFecha): ReporteF
         inicioRefrigerio: null,
         finRefrigerio: null,
         tiempoRefrigerio: 0,
-        tiempoTrabajadoNeto: '-',
-        estado: 'Falta Salida',
-        esTarde: false
+        tiempoTrabajadoNeto: "-",
+        estado: "Falta Salida",
+        esTarde: false,
       };
     }
 
@@ -84,27 +96,32 @@ export function procesarReporte(data: Asistencia[], rango: RangoFecha): ReporteF
     const fechaReg = new Date(registro.fecha_registro);
 
     // Mapeo de eventos
-    if (registro.tipo === 'entrada') {
+    if (registro.tipo === "entrada") {
       current.horaEntrada = fechaReg;
       const hora = fechaReg.getHours();
       const min = fechaReg.getMinutes();
-      if (hora > HORA_ENTRADA_BASE || (hora === HORA_ENTRADA_BASE && min > MINUTOS_TOLERANCIA)) {
-        current.estado = 'Tarde';
+      if (
+        hora > HORA_ENTRADA_BASE ||
+        (hora === HORA_ENTRADA_BASE && min > MINUTOS_TOLERANCIA)
+      ) {
+        current.estado = "Tarde";
         current.esTarde = true;
       } else {
-        current.estado = 'Puntual';
+        current.estado = "Puntual";
       }
-    } 
-    else if (registro.tipo === 'salida') current.horaSalida = fechaReg;
-    else if (registro.tipo === 'inicio_refrigerio') current.inicioRefrigerio = fechaReg;
-    else if (registro.tipo === 'fin_refrigerio') current.finRefrigerio = fechaReg;
+    } else if (registro.tipo === "salida") current.horaSalida = fechaReg;
+    else if (registro.tipo === "inicio_refrigerio")
+      current.inicioRefrigerio = fechaReg;
+    else if (registro.tipo === "fin_refrigerio")
+      current.finRefrigerio = fechaReg;
   });
 
   // 3. Cálculo Final
-  return Object.values(reporte).map(fila => {
+  return Object.values(reporte).map((fila) => {
     // Descuento de refrigerio
     if (fila.inicioRefrigerio && fila.finRefrigerio) {
-      fila.tiempoRefrigerio = fila.finRefrigerio.getTime() - fila.inicioRefrigerio.getTime();
+      fila.tiempoRefrigerio =
+        fila.finRefrigerio.getTime() - fila.inicioRefrigerio.getTime();
     }
 
     // Cálculo Neto
@@ -112,11 +129,11 @@ export function procesarReporte(data: Asistencia[], rango: RangoFecha): ReporteF
       const bruto = fila.horaSalida.getTime() - fila.horaEntrada.getTime();
       const neto = bruto - fila.tiempoRefrigerio;
       fila.tiempoTrabajadoNeto = msToTime(neto);
-      
+
       // Si ya salió, actualizamos estado si estaba pendiente
-      if (fila.estado === 'Falta Salida') {
-         // Aquí podrías agregar lógica si salió muy temprano, etc.
-         fila.estado = fila.esTarde ? 'Tarde' : 'Puntual'; 
+      if (fila.estado === "Falta Salida") {
+        // Aquí podrías agregar lógica si salió muy temprano, etc.
+        fila.estado = fila.esTarde ? "Tarde" : "Puntual";
       }
     } else if (fila.horaEntrada && !fila.horaSalida) {
       fila.tiempoTrabajadoNeto = "En curso...";
@@ -126,23 +143,28 @@ export function procesarReporte(data: Asistencia[], rango: RangoFecha): ReporteF
   });
 }
 // Agrega esta importación al principio del archivo junto con las otras
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 
 // ... (El resto de tu código procesarReporte sigue igual) ...
 
 // --- NUEVA FUNCIÓN: EXPORTAR A EXCEL ---
 export function descargarExcel(data: ReporteFila[]) {
   // 1. Mapeamos los datos para que las columnas del Excel tengan nombres bonitos
-  const datosExcel = data.map(fila => ({
-    "Empleado": fila.empleado.nombre,
-    "Rol": fila.empleado.rol,
-    "Fecha": fila.fecha,
-    "Hora Entrada": fila.horaEntrada ? fila.horaEntrada.toLocaleTimeString() : '-',
-    "Hora Salida": fila.horaSalida ? fila.horaSalida.toLocaleTimeString() : '-',
-    "Tiempo Refrigerio": fila.tiempoRefrigerio > 0 ? `${Math.floor(fila.tiempoRefrigerio / 60000)} min` : '-',
+  const datosExcel = data.map((fila) => ({
+    Empleado: fila.empleado.nombre,
+    Rol: fila.empleado.rol,
+    Fecha: fila.fecha,
+    "Hora Entrada": fila.horaEntrada
+      ? fila.horaEntrada.toLocaleTimeString()
+      : "-",
+    "Hora Salida": fila.horaSalida ? fila.horaSalida.toLocaleTimeString() : "-",
+    "Tiempo Refrigerio":
+      fila.tiempoRefrigerio > 0
+        ? `${Math.floor(fila.tiempoRefrigerio / 60000)} min`
+        : "-",
     "Horas Netas": fila.tiempoTrabajadoNeto,
-    "Estado": fila.estado,
-    "Observación": fila.esTarde ? 'LLEGADA TARDÍA' : ''
+    Estado: fila.estado,
+    Observación: fila.esTarde ? "LLEGADA TARDÍA" : "",
   }));
 
   // 2. Crear una Hoja de trabajo (Worksheet)
@@ -160,13 +182,13 @@ export function descargarExcel(data: ReporteFila[]) {
     { wch: 15 }, // Estado
     { wch: 20 }, // Observación
   ];
-  hoja['!cols'] = wscols;
+  hoja["!cols"] = wscols;
 
   // 4. Crear el Libro (Workbook) y agregar la hoja
   const libro = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(libro, hoja, "Reporte Asistencia");
 
   // 5. Generar archivo y descargar
-  const fechaHoy = new Date().toISOString().split('T')[0];
+  const fechaHoy = new Date().toISOString().split("T")[0];
   XLSX.writeFile(libro, `Reporte_Asistencia_${fechaHoy}.xlsx`);
 }
