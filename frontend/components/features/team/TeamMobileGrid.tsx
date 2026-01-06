@@ -82,7 +82,7 @@ function MobileRiderCard({ rider, onDelete, onEdit }: { rider: Repartidor, onDel
          </div>
          <div className="flex items-center justify-between px-3 py-1.5 rounded-md text-xs border border-border bg-muted/30">
              <span className="text-muted-foreground">PIN</span>
-             <span className="font-mono font-bold tracking-widest">••••</span>
+             <span className="font-mono font-bold tracking-widest">****</span>
          </div>
       </div>
     </div>

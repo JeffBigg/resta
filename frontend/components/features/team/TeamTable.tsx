@@ -64,7 +64,7 @@ function StaffRow({ emp, onDelete, onEdit }: { emp: Empleado, onDelete: (id: str
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground border border-border">
               {emp.rol_operativo}
             </span>
-            <span className="text-xs text-muted-foreground font-mono bg-muted px-1.5 rounded border border-border">••••</span>
+            <span className="text-xs text-muted-foreground font-mono bg-muted px-1.5 rounded border border-border">****</span>
          </div>
       </td>
       <td className="px-6 py-4 text-right">
