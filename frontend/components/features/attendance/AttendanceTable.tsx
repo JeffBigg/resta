@@ -1,5 +1,5 @@
 import { ReporteFila } from '@/lib/attendance-utils';
-import { Asistencia, Empleado } from '@/lib/api';
+import { Asistencia, Empleado } from '@/types/index';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { Avatar } from '@/components/ui/Avatar';
 import { EventBadge } from '@/components/ui/EventBadge';

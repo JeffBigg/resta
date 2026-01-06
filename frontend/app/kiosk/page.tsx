@@ -2,19 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import { toast, Toaster } from 'sonner';
+// Asegúrate de que registrarAsistencia acepte el 3er argumento en tu api.ts
 import { validarEmpleadoPorPin, registrarAsistencia } from '@/lib/api'; 
 
-// --- TIPOS ---
-interface Employee {
+// --- TIPOS ACTUALIZADOS ---
+// Adaptamos esto a la respuesta "persona" de la API
+interface KioskUser {
   documentId: string;
   nombre: string;
-  rol_operativo: string;
+  rol: string;          // Antes era rol_operativo
+  type: 'staff' | 'rider'; // Nuevo campo vital
 }
 
 interface ActionButtonProps {
   label: string;
   icon: string;
-  className?: string; // Cambiamos 'color' por 'className' para mayor flexibilidad
+  className?: string;
   onClick: () => void;
   isLoading?: boolean;
 }
@@ -24,7 +27,8 @@ type StatusType = 'fuera' | 'trabajando' | 'refrigerio';
 export default function KioskPage() {
   const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
-  const [employee, setEmployee] = useState<Employee | null>(null);
+  // Cambiamos el tipo de estado
+  const [user, setUser] = useState<KioskUser | null>(null); 
   const [currentStatus, setCurrentStatus] = useState<StatusType>('fuera');
 
   // --- RELOJ ---
@@ -53,9 +57,10 @@ export default function KioskPage() {
     const result = await validarEmpleadoPorPin(pin);
 
     if (result) {
-      setEmployee(result.empleado);
+      // ✅ CORRECCIÓN AQUÍ: Usamos 'persona' en lugar de 'empleado'
+      setUser(result.persona as KioskUser);
       setCurrentStatus(result.status);
-      toast.success(`Hola, ${result.empleado.nombre.split(' ')[0]}`);
+      toast.success(`Hola, ${result.persona.nombre.split(' ')[0]}`);
     } else {
       toast.error('PIN no reconocido', { description: 'Intenta nuevamente.' });
       setPin('');
@@ -65,10 +70,11 @@ export default function KioskPage() {
 
   // --- ACCIONES ---
   const handleAction = async (tipo: 'entrada' | 'inicio_refrigerio' | 'fin_refrigerio' | 'salida') => {
-    if (!employee) return;
+    if (!user) return;
     setLoading(true);
 
-    const success = await registrarAsistencia(employee.documentId, tipo);
+    // ✅ CORRECCIÓN AQUÍ: Pasamos el 'type' ('staff' o 'rider')
+    const success = await registrarAsistencia(user.documentId, tipo, user.type);
 
     if (success) {
         const mensajes = {
@@ -82,7 +88,7 @@ export default function KioskPage() {
 
         setTimeout(() => {
             setPin('');
-            setEmployee(null);
+            setUser(null);
             setCurrentStatus('fuera');
             setLoading(false);
         }, 2000);
@@ -97,7 +103,6 @@ export default function KioskPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-2">
-           {/* Spinner usando color primario */}
            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
            <span className="text-muted-foreground text-sm font-medium">Iniciando sistema...</span>
         </div>
@@ -106,11 +111,9 @@ export default function KioskPage() {
   }
 
   return (
-    // 1. FONDO PRINCIPAL: bg-background
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4 relative transition-colors duration-300">
       <Toaster position="top-center" richColors theme="system" />
 
-      {/* 2. TARJETA PRINCIPAL: bg-card + border-border */}
       <div className="w-full max-w-md bg-card rounded-3xl shadow-2xl overflow-hidden border border-border">
         
         {/* HEADER */}
@@ -124,7 +127,7 @@ export default function KioskPage() {
         </div>
 
         <div className="p-8">
-          {!employee ? (
+          {!user ? (
             // VISTA PIN
             <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-300">
               <div className="text-center">
@@ -137,8 +140,8 @@ export default function KioskPage() {
                         key={i} 
                         className={`w-4 h-4 rounded-full transition-all duration-200 ${
                             i < pin.length 
-                            ? 'bg-primary scale-110' // Activo: Color Primario
-                            : 'bg-muted'             // Inactivo: Color Muted
+                            ? 'bg-primary scale-110' 
+                            : 'bg-muted'
                         }`} 
                     />
                   ))}
@@ -151,14 +154,12 @@ export default function KioskPage() {
                   <button 
                     key={n} 
                     onClick={() => handleNumClick(n.toString())} 
-                    // Teclas: bg-secondary (se adapta a light/dark)
                     className="h-16 rounded-2xl bg-secondary hover:bg-secondary/80 text-secondary-foreground text-2xl font-bold transition-all active:scale-95 shadow-sm border border-border"
                   >
                     {n}
                   </button>
                 ))}
                 
-                {/* Botón Borrar: Destructive */}
                 <button 
                     onClick={handleClear} 
                     className="h-16 rounded-2xl bg-destructive/10 hover:bg-destructive/20 text-destructive font-bold transition-all active:scale-95 border border-transparent hover:border-destructive/20"
@@ -173,13 +174,12 @@ export default function KioskPage() {
                     0
                 </button>
                 
-                {/* Botón Entrar: Primary */}
                 <button 
                     onClick={handleLogin} 
                     disabled={pin.length < 4 || loading} 
                     className="h-16 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-2xl transition-all shadow-lg shadow-primary/20"
                 >
-                   {loading ? <span className="animate-spin text-sm">⏳</span> : '➜'}
+                    {loading ? <span className="animate-spin text-sm">⏳</span> : '➜'}
                 </button>
               </div>
             </div>
@@ -187,15 +187,15 @@ export default function KioskPage() {
             // VISTA ACCIONES
             <div className="text-center animate-in zoom-in duration-300">
                <div className="mb-6">
-                 {/* Avatar con Primary */}
+                 {/* Avatar */}
                  <div className="w-20 h-20 bg-primary rounded-full mx-auto mb-3 flex items-center justify-center text-3xl font-bold text-primary-foreground uppercase shadow-lg shadow-primary/30">
-                    {employee.nombre.charAt(0)}
+                    {user.nombre.charAt(0)}
                  </div>
-                 <h2 className="text-2xl font-bold text-foreground">Hola, {employee.nombre.split(' ')[0]}</h2>
+                 <h2 className="text-2xl font-bold text-foreground">Hola, {user.nombre.split(' ')[0]}</h2>
                  
-                 {/* Badge con Muted */}
+                 {/* Badge de Rol */}
                  <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded-md uppercase font-bold mt-2 inline-block border border-border">
-                    {employee.rol_operativo}
+                    {user.rol}
                  </span>
                </div>
 
@@ -233,7 +233,7 @@ export default function KioskPage() {
                </div>
 
                <button 
-                 onClick={() => { setEmployee(null); setPin(''); }}
+                 onClick={() => { setUser(null); setPin(''); }}
                  className="mt-8 text-muted-foreground text-sm hover:text-foreground transition-colors underline decoration-muted-foreground/50"
                  disabled={loading}
                >
@@ -247,7 +247,6 @@ export default function KioskPage() {
   );
 }
 
-// Botón reutilizable actualizado
 function ActionButton({ label, icon, className, onClick, isLoading }: ActionButtonProps & { isLoading?: boolean }) {
   return (
     <button 

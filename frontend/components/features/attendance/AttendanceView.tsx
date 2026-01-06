@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { getAsistencias, Asistencia, Empleado } from '@/lib/api';
+import { Asistencia, Empleado } from '@/types/index';
 import { procesarReporte, RangoFecha } from '@/lib/attendance-utils';
+import { getAsistencias } from '@/lib/api';
 
 import AttendanceHeader from './AttendanceHeader';
 import AttendanceMobileGrid from './AttendanceMobileGrid';

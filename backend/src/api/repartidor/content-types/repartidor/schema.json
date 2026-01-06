@@ -33,6 +33,18 @@
       "relation": "oneToMany",
       "target": "api::pedido.pedido",
       "mappedBy": "repartidor"
+    },
+    "apellido": {
+      "type": "string"
+    },
+    "pin_code": {
+      "type": "string"
+    },
+    "asistencias": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::asistencia.asistencia",
+      "mappedBy": "repartidor"
     }
   }
 }

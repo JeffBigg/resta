@@ -31,6 +31,12 @@
       "relation": "manyToOne",
       "target": "api::empleado.empleado",
       "inversedBy": "asistencias"
+    },
+    "repartidor": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::repartidor.repartidor",
+      "inversedBy": "asistencias"
     }
   }
 }

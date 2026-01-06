@@ -491,6 +491,10 @@ export interface ApiAsistenciaAsistencia extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     nota: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
+    repartidor: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::repartidor.repartidor'
+    >;
     tipo: Schema.Attribute.Enumeration<
       ['entrada', 'inicio_refrigerio', 'fin_refrigerio', 'salida']
     >;
@@ -531,6 +535,7 @@ export interface ApiEmpleadoEmpleado extends Struct.CollectionTypeSchema {
     rol_operativo: Schema.Attribute.Enumeration<
       ['Rider', 'Cocina', 'Caja', 'Limpieza']
     >;
+    telefono: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -586,6 +591,11 @@ export interface ApiRepartidorRepartidor extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    apellido: Schema.Attribute.String;
+    asistencias: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::asistencia.asistencia'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -600,6 +610,7 @@ export interface ApiRepartidorRepartidor extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     nombre: Schema.Attribute.String;
     pedidos: Schema.Attribute.Relation<'oneToMany', 'api::pedido.pedido'>;
+    pin_code: Schema.Attribute.String;
     placa_vehiculo: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     telefono: Schema.Attribute.String;
